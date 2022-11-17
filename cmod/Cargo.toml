@@ -1,0 +1,18 @@
+[package]
+authors = ["rise0chen <rise0chen@163.com>"]
+categories = ["development-tools::ffi"]
+description = "Build a cross-language module with Rust FFI"
+edition = "2018"
+license-file = "LICENSE"
+name = "cmod"
+repository = "https://github.com/rise0chen/cmod.git"
+version = "0.0.1"
+
+[features]
+default = []
+ffi_lua = ["cmod-macros/ffi_lua", "cmod-core/ffi_lua"]
+ffi_py = ["cmod-macros/ffi_py", "cmod-core/ffi_py"]
+
+[dependencies]
+cmod-core = {version = "0", path = "../cmod-core"}
+cmod-macros = {version = "0", path = "../cmod-macros"}

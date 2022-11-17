@@ -1,0 +1,16 @@
+[package]
+authors = ["rise0chen <rise0chen@163.com>"]
+edition = "2018"
+name = "cmod-example"
+repository = "https://github.com/rise0chen/cmod.git"
+version = "0.0.1"
+
+[features]
+default = ["ffi_py"]
+ffi_lua = ["cmod/ffi_lua", "mlua"]
+ffi_py = ["cmod/ffi_py", "pyo3"]
+
+[dependencies]
+cmod = {version = "0", path = "../cmod"}
+mlua = {version = "0.8", features = ["lua54"], optional = true}
+pyo3 = {version = "0.17", features = ["abi3-py37"], optional = true}

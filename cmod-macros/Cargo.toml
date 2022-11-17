@@ -1,0 +1,21 @@
+[package]
+authors = ["rise0chen <rise0chen@163.com>"]
+categories = ["development-tools::ffi"]
+description = "Proc macros for cmod"
+edition = "2018"
+license-file = "LICENSE"
+name = "cmod-macros"
+repository = "https://github.com/rise0chen/cmod.git"
+version = "0.0.1"
+
+[lib]
+proc-macro = true
+
+[features]
+ffi_lua = []
+ffi_py = []
+
+[dependencies]
+proc-macro2 = "1"
+quote = "1"
+syn = {version = "1", features = ["full", "extra-traits"]}

@@ -1,0 +1,10 @@
+[workspace]
+members = [
+  "cmod-core",
+  "cmod-macros",
+  "cmod",
+  "example",
+]
+resolver = "2"
+
+[patch.crates-io]

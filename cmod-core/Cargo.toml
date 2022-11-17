@@ -1,0 +1,20 @@
+[package]
+authors = ["rise0chen <rise0chen@163.com>"]
+categories = ["development-tools::ffi"]
+description = "cmod-core"
+edition = "2018"
+license-file = "LICENSE"
+name = "cmod-core"
+repository = "https://github.com/rise0chen/cmod.git"
+version = "0.0.1"
+
+[features]
+default = []
+ffi_lua = ["mlua"]
+ffi_py = ["pyo3", "pyo3-asyncio", "pythonize"]
+
+[dependencies]
+mlua = {version = "0.8", features = ["send", "async", "serialize", "module"], optional = true}
+pyo3 = {version = "0.17", features = ["serde", "extension-module"], optional = true}
+pyo3-asyncio = {version = "0.17", features = ["tokio-runtime"], optional = true}
+pythonize = {version = "0.17", optional = true}
