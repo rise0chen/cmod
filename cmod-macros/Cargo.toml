@@ -13,9 +13,10 @@ proc-macro = true
 
 [features]
 ffi_lua = []
-ffi_py = []
+ffi_py = ["pyo3"]
 
 [dependencies]
 proc-macro2 = "1"
 quote = "1"
 syn = {version = "1", features = ["full", "extra-traits"]}
+pyo3 = {version = "0.17", features = ["abi3-py37"], optional = true}

@@ -6,4 +6,4 @@ mod py;
 #[cfg(feature = "ffi_lua")]
 pub use lua::impl_;
 #[cfg(feature = "ffi_py")]
-pub use py::impl_;
+pub use py::cmod_function;
