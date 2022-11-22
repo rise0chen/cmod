@@ -1,3 +1,6 @@
+mod serde;
+
+pub use self::serde::{FromFfi, ToFfi};
 use core::future::Future;
 use pyo3::exceptions::PyTypeError;
 pub use pyo3::prelude::*;
