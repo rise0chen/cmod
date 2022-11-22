@@ -73,6 +73,7 @@ name = "cmod-macros"
 version = "0.0.1"
 dependencies = [
  "proc-macro2",
+ "pyo3",
  "quote",
  "syn",
 ]
