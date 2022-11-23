@@ -1,7 +1,8 @@
 use proc_macro::TokenStream;
 use quote::{quote};
-use syn::{parse_macro_input,parse_quote,Ident,ItemImpl, ImplItemMethod, ImplItem, ItemStruct, ItemFn};
+use syn::{parse_macro_input,parse_quote,Ident,ItemImpl, ImplItemMethod, ImplItem, ItemStruct};
 use super::super::utils::py::*;
+use std::mem;
 
 pub fn cmod_class(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemStruct);
@@ -12,36 +13,49 @@ pub fn cmod_class(_attr: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 pub fn cmod_methods(_attr: TokenStream, input: TokenStream) -> TokenStream{
-    let input = parse_macro_input!(input as ItemImpl);
+    let mut input = parse_macro_input!(input as ItemImpl);
     let mut py_input = input.clone();
-    let name = *py_input.self_ty.clone();
-    let mut token  = Vec::new();
-    py_input.items.iter().for_each(|method|{
-        match method{
-            &ImplItem::Method(ref inner_method) => {
-                let flag = inner_method_handle(inner_method);
-                match flag{
-                    Flag::Static => {
-                        let ret = to_static(inner_method.clone());
-                        token.push(ImplItem::Method(ret));
-                    },
-                    Flag::Class => {
-                        let ret = to_class(inner_method.clone());
-                        token.push(ImplItem::Method(ret));
-                    },
-                    Flag::Empty => ()
-                }
+
+
+    input.attrs.clear();
+    input.items.iter_mut().for_each(|ii|{
+        match ii{
+            ImplItem::Method(md) => {
+                md.attrs.clear();
             }
             _=>()
         }
     });
-    py_input.items.append(&mut token);
+
+    let mut item_record:Vec<ImplItem> = Vec::new();
+    py_input.items.iter().for_each(|ii|{
+        match ii{
+            ImplItem::Method(md) => {
+                match inner_method_handle(md){
+                    Flag::Static => {
+                        item_record.push(ImplItem::from(method_static(md.clone())));
+                    },
+                    Flag::Class => {
+                        item_record.push(ImplItem::from(method_class(md.clone())));
+                    },
+                    _ =>()
+                }
+            },
+            _=>()
+        }
+    });
+    {
+        let item = &mut py_input.items;
+        let _ = mem::replace(item, item_record);
+    }
     TokenStream::from(quote!(
-        #input 
-        
-        #py_input
+        #input
+
+        #[pyo3::pymethods]
+        #py_input 
     ))
 }
+
 
 enum Flag{
     Empty,
@@ -60,57 +74,56 @@ fn inner_method_handle(inner_method:&ImplItemMethod) -> Flag{
     return Flag::Empty;
 }
 
-pub fn to_static(inner_method:ImplItemMethod) -> ImplItemMethod {
-    let py_input = inner_method.clone();
+pub fn method_static(input: ImplItemMethod) -> ImplItemMethod{
+    let py_input = input.clone();
     let function = Function::parse_impl_fn(py_input);
-    let name = function.name;
-    let inp = function.input;
+    let Function { name, asy, input:inp,args,ret } = function;
     let after_name = Ident::rename(name.clone());
-    if function.asy{
+    let name_str = name.to_string();
+    if asy{
         parse_quote!(
-            #[pyo3::pyfunction]
-            #[pyo3(name = stringify!(#name))]
-            fn #after_name(py: pyo3::Python, #inp) -> _{
+            #[staticmethod]
+            #[pyo3(name = #name_str)]
+            fn #after_name(py: pyo3::Python, #inp)#ret{
                 cmod::ffi::py::block_on(py, async move{
-                    #name().await.map_err(cmod::ffi::py::map_err)
+                    Self::#name(#args).await.map_err(cmod::ffi::py::map_err)
                 })
             }
         )
     }else{
         parse_quote!(
-            #[pyo3::pyfunction]
-            #[pyo3(name = stringify!(#name))]
-            fn #after_name(py: pyo3::Python, #inp) -> _{
-                #name().map_err(cmod::ffi::py::map_err)
+            #[staticmethod]
+            #[pyo3(name = #name_str)]
+            fn #after_name(py: pyo3::Python, #inp)#ret{
+                Self::#name(#args).map_err(cmod::ffi::py::map_err)
             }
         )
     }
 }
 
-fn to_class(inner_method:ImplItemMethod) -> ImplItemMethod {
-    let py_input = inner_method.clone();
+pub fn method_class(input:ImplItemMethod) -> ImplItemMethod{
+    let py_input = input.clone();
     let function = Function::parse_impl_fn(py_input);
-    let name = function.name;
-    let inp = function.input;
+    let Function { name, asy, input:mut inp,args, ret } = function;
+    inp = inp.into_iter().skip(1).collect();
     let after_name = Ident::rename(name.clone());
-    if function.asy{
+    let name_str = name.to_string();
+    if asy{
         parse_quote!(
-            #[pyo3::pyfunction]
-            #[pyo3(name = stringify!(#name))]
-            fn #after_name<'py>(this: pyo3::Py<Self>, py: pyo3::Python, #inp) -> _{
+            #[pyo3(name = #name_str)]
+            fn #after_name<'py>(this:pyo3::Py<Self>,py: pyo3::Python<'py>, #inp)#ret{
+                let this:Self = this.extract(py)?;
                 cmod::ffi::py::block_on(py, async move{
-                    let this: Self = this.extract(py)?
-                    this.#name().await.map_err(cmod::ffi::py::map_err)
+                    this.#name(#args).await.map_err(cmod::ffi::py::map_err)
                 })
             }
         )
     }else{
         parse_quote!(
-            #[pyo3::pyfunction]
-            #[pyo3(name = stringify!(#name))]
-            fn #after_name<'py>(this: pyo3::Py<Self>, py: pyo3::Python, #inp) -> _{
-                let this: Self = this.extract(py)?;
-                this.#name().map_err(cmod::ffi::py::map_err)
+            #[pyo3(name = #name_str)]
+            fn #after_name<'py>(this: pyo3::Py<Self>,py: pyo3::Python<'py>, #inp)#ret{
+                let this:Self = this.extract(py)?;
+                this.#name(#args).map_err(cmod::ffi::py::map_err)
             }
         )
     }

@@ -1,5 +1,5 @@
-use proc_macro2::{TokenStream,Span};
-use syn::{parse_macro_input,Expr,Ident,ItemFn,ImplItemMethod,Local,Pat,Stmt,Token,token::Comma,FnArg,punctuated::Punctuated};
+use proc_macro2::Span;
+use syn::{Ident,ItemFn,ImplItemMethod,token::Comma,FnArg,punctuated::Punctuated,ReturnType, parse_quote,Type,Expr};
 
 pub trait Utils{
     fn rename(before: Ident) -> Ident;
@@ -8,11 +8,11 @@ pub trait Utils{
 
 impl Utils for Ident{
     fn rename(before: Ident) -> Ident{
-        return Ident::new(format!("py_{}",stringify!(name)).as_str(),Span::call_site());
+        return Ident::new(format!("py_{}",before.to_string()).as_str(),Span::call_site());
     }
 
     fn rename_module(before: Ident) -> Ident{
-        return Ident::new(format!("py_module_{}",stringify!(name)).as_str(),Span::call_site());
+        return Ident::new(format!("py_module_{}",before.to_string()).as_str(),Span::call_site());
     }
 }
 
@@ -20,22 +20,58 @@ pub struct Function{
     pub name: Ident,
     pub asy: bool,
     pub input: Punctuated<FnArg,Comma>,
+    pub args: Punctuated<Expr,Comma>,
+    pub ret: ReturnType,
 }
 
 impl Function{
-    pub fn parse_fn(input:ItemFn) -> Self{
+    pub fn parse_fn(mut input:ItemFn) -> Self{
+        if let ReturnType::Type(_r,ref mut ty) = input.sig.output{
+            if let Type::Path(tp) = (**ty).clone(){
+                let t = tp.path.segments.last().unwrap().arguments.clone();
+                **ty = parse_quote!(
+                    pyo3::PyResult#t
+                )
+            }
+        }
+        let mut args = Punctuated::new();
+        input.sig.inputs.iter().for_each(|i|{
+            if let FnArg::Typed(t) = i{
+                let t = *t.pat.clone();
+                args.push(parse_quote!(#t));
+            }
+        });
         Self{
             name: input.sig.ident,
             asy: input.sig.asyncness.is_some(),
-            input: input.sig.inputs
+            input: input.sig.inputs,
+            args,
+            ret: input.sig.output,
         }
     }
 
-    pub fn parse_impl_fn(input:ImplItemMethod) -> Self{
+    pub fn parse_impl_fn(mut input:ImplItemMethod) -> Self{
+        if let ReturnType::Type(_r,ref mut ty) = input.sig.output{
+            if let Type::Path(tp) = (**ty).clone(){
+                let t = tp.path.segments.last().unwrap().arguments.clone();
+                **ty = parse_quote!(
+                    pyo3::PyResult#t
+                )
+            }
+        }
+        let mut args = Punctuated::new();
+        input.sig.inputs.iter().for_each(|i|{
+            if let FnArg::Typed(t) = i{
+                let t = *t.pat.clone();
+                args.push(parse_quote!(#t));
+            }
+        });
         Self{    
             name: input.sig.ident,
             asy: input.sig.asyncness.is_some(),
-            input: input.sig.inputs
+            input: input.sig.inputs,
+            args,
+            ret:input.sig.output,
         }
     }
 }
