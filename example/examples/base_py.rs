@@ -1,11 +1,9 @@
 #![allow(unused_parens)]
 #![allow(unused_variables)]
 
-/// 欢迎
 mod hello {
     use cmod::Result;
 
-    /// 你好 世界
     fn hello_world() -> Result<String> {
         Ok("Hello world".into())
     }
@@ -15,7 +13,6 @@ mod hello {
         hello_world().map_err(cmod::ffi::py::map_err)
     }
 
-    /// 问好
     async fn hello_human(name: String) -> Result<Human> {
         Human::new(name)
     }
@@ -51,24 +48,19 @@ mod hello {
 
     #[pyo3::pyclass]
     #[derive(Clone, Default)]
-    /// 人
     struct Human {
-        /// 姓名
         name: String,
     }
     impl Human {
-        /// 创建实例
         fn new(name: String) -> Result<Human> {
             Ok(Human { name })
         }
 
-        /// 创建匿名者
         async fn anon() -> Result<Human> {
             Ok(Human {
                 name: String::new(),
             })
         }
-        /// 问好
         fn hello(&self) -> Result<String> {
             Ok(format!("hello, {}", self.name))
         }
