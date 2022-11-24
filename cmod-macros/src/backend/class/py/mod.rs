@@ -86,7 +86,7 @@ pub fn method_static(input: ImplItemMethod) -> ImplItemMethod{
             #[pyo3(name = #name_str)]
             fn #after_name(py: pyo3::Python, #inp)#ret{
                 cmod::ffi::py::block_on(py, async move{
-                    Self::#name(#args).await.map_err(cmod::ffi::py::map_err)
+                    Self::#name(#args).await.map_err(cmod::ffi::py::map_err).map(|x|x.into())
                 })
             }
         )
@@ -95,7 +95,7 @@ pub fn method_static(input: ImplItemMethod) -> ImplItemMethod{
             #[staticmethod]
             #[pyo3(name = #name_str)]
             fn #after_name(py: pyo3::Python, #inp)#ret{
-                Self::#name(#args).map_err(cmod::ffi::py::map_err)
+                Self::#name(#args).map_err(cmod::ffi::py::map_err).map(|x|x.into())
             }
         )
     }
@@ -114,7 +114,7 @@ pub fn method_class(input:ImplItemMethod) -> ImplItemMethod{
             fn #after_name<'py>(this:pyo3::Py<Self>,py: pyo3::Python<'py>, #inp)#ret{
                 let this:Self = this.extract(py)?;
                 cmod::ffi::py::block_on(py, async move{
-                    this.#name(#args).await.map_err(cmod::ffi::py::map_err)
+                    this.#name(#args).await.map_err(cmod::ffi::py::map_err).map(|x|x.into())
                 })
             }
         )
@@ -123,7 +123,7 @@ pub fn method_class(input:ImplItemMethod) -> ImplItemMethod{
             #[pyo3(name = #name_str)]
             fn #after_name<'py>(this: pyo3::Py<Self>,py: pyo3::Python<'py>, #inp)#ret{
                 let this:Self = this.extract(py)?;
-                this.#name(#args).map_err(cmod::ffi::py::map_err)
+                this.#name(#args).map_err(cmod::ffi::py::map_err).map(|x|x.into())
             }
         )
     }

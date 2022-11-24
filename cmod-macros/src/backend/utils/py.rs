@@ -30,15 +30,18 @@ impl Function{
             if let Type::Path(tp) = (**ty).clone(){
                 let t = tp.path.segments.last().unwrap().arguments.clone();
                 **ty = parse_quote!(
-                    pyo3::PyResult#t
+                    pyo3::PyResult<cmod::ffi::py::ToFfi#t>
                 )
             }
         }
         let mut args = Punctuated::new();
-        input.sig.inputs.iter().for_each(|i|{
+        input.sig.inputs.iter_mut().for_each(|i|{
             if let FnArg::Typed(t) = i{
-                let t = *t.pat.clone();
-                args.push(parse_quote!(#t));
+                let pt = *t.pat.clone();
+                args.push(parse_quote!(#pt.into_inner()));
+
+                let ty = *t.ty.clone();
+                *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
             }
         });
         Self{
@@ -55,15 +58,18 @@ impl Function{
             if let Type::Path(tp) = (**ty).clone(){
                 let t = tp.path.segments.last().unwrap().arguments.clone();
                 **ty = parse_quote!(
-                    pyo3::PyResult#t
+                    pyo3::PyResult<cmod::ffi::py::ToFfi#t>
                 )
             }
         }
         let mut args = Punctuated::new();
-        input.sig.inputs.iter().for_each(|i|{
+        input.sig.inputs.iter_mut().for_each(|i|{
             if let FnArg::Typed(t) = i{
-                let t = *t.pat.clone();
-                args.push(parse_quote!(#t));
+                let pt = *t.pat.clone();
+                args.push(parse_quote!(#pt.into_inner()));
+
+                let ty = *t.ty.clone();
+                *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
             }
         });
         Self{    

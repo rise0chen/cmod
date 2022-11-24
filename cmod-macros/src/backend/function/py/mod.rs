@@ -18,7 +18,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
             #[pyo3(name = #name_str)]
             fn #after_name(py: pyo3::Python, #inp)#ret{
                 cmod::ffi::py::block_on(py, async move{
-                    #name(#args).await.map_err(cmod::ffi::py::map_err)
+                    #name(#args).await.map_err(cmod::ffi::py::map_err).map(|x|x.into())
                 })
             }
         ))
@@ -29,7 +29,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
             #[pyo3::pyfunction]
             #[pyo3(name = #name_str)]
             fn #after_name(py: pyo3::Python, #inp)#ret{
-                #name(#args).map_err(cmod::ffi::py::map_err)
+                #name(#args).map_err(cmod::ffi::py::map_err).map(|x|x.into())
             }
         ))
     }

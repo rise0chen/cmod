@@ -3,31 +3,31 @@
 mod hello {
     use cmod::Result;
 
-    #[cmod::cmod_function]
+    #[cmod::function]
     fn hello_world() -> Result<String> {
         Ok("Hello world".into())
     }
-    #[cmod::cmod_function]
+    #[cmod::function]
     async fn hello_human(name: String) -> Result<Human> {
         Human::new(name)
     }
 
-    #[cmod::cmod_module]
+    #[cmod::module]
     mod say {
         use cmod::Result;
 
-        #[cmod::cmod_function]
+        #[cmod::function]
         fn bye() -> Result<String> {
             Ok("say bye".into())
         }
     }
 
-    #[cmod::cmod_class]
+    #[cmod::class]
     #[derive(Clone, Default)]
     struct Human {
         name: String,
     }
-    #[cmod::cmod_methods]
+    #[cmod::methods]
     impl Human {
         #[staticmethod]
         fn new(name: String) -> Result<Human> {
