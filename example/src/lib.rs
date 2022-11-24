@@ -46,5 +46,3 @@ mod hello {
         }
     }
 }
-
-fn main() {}

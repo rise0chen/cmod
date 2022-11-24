@@ -61,20 +61,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "cmod-example"
-version = "0.0.1"
-dependencies = [
- "cmod",
- "mlua",
- "pyo3",
-]
-
-[[package]]
 name = "cmod-macros"
 version = "0.0.1"
 dependencies = [
  "proc-macro2",
- "pyo3",
  "quote",
  "syn",
 ]
@@ -175,6 +165,15 @@ dependencies = [
  "pin-project-lite",
  "pin-utils",
  "slab",
+]
+
+[[package]]
+name = "hello"
+version = "0.0.1"
+dependencies = [
+ "cmod",
+ "mlua",
+ "pyo3",
 ]
 
 [[package]]

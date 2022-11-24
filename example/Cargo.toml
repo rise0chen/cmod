@@ -1,9 +1,13 @@
 [package]
 authors = ["rise0chen <rise0chen@163.com>"]
 edition = "2018"
-name = "cmod-example"
+name = "hello"
 repository = "https://github.com/rise0chen/cmod.git"
 version = "0.0.1"
+
+[lib]
+crate-type = ["cdylib"]
+name = "hello"
 
 [features]
 default = ["ffi_py"]
