@@ -28,7 +28,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
         it.into_iter().for_each(|i|{
             match i{
                 Item::Fn(ifn) =>{
-                    if ifn.attrs.iter().any(|a|a.path.segments.last().unwrap().ident == Ident::new("cmod_function",Span::call_site())){
+                    if ifn.attrs.iter().any(|a|a.path.segments.last().unwrap().ident == Ident::new("function",Span::call_site())){
                         let name = Ident::rename(ifn.sig.ident.clone());
                         let semi = parse_quote!(
                             m.add_function(pyo3::wrap_pyfunction!(#name,m)?)?;
@@ -37,7 +37,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
                     }
                 },
                 Item::Mod(imd) => {
-                    if imd.attrs.iter().any(|a|a.path.segments.last().unwrap().ident == Ident::new("cmod_module",Span::call_site())){
+                    if imd.attrs.iter().any(|a|a.path.segments.last().unwrap().ident == Ident::new("module",Span::call_site())){
                         let name = imd.ident.clone();
                         let after_name = Ident::rename_module(imd.ident.clone());
                         let semi = parse_quote!(
@@ -47,7 +47,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
                     }
                 },
                 Item::Struct(ist) => {
-                    if ist.attrs.iter().any(|a|a.path.segments.last().unwrap().ident == Ident::new("cmod_class",Span::call_site())){
+                    if ist.attrs.iter().any(|a|a.path.segments.last().unwrap().ident == Ident::new("class",Span::call_site())){
                         let name = ist.ident.clone();
                         let semi = parse_quote!(
                             m.add_class::<#name>()?;
