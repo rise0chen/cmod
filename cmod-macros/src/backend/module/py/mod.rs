@@ -16,7 +16,7 @@ pub fn cmod_module(_attr: TokenStream, input: TokenStream) -> TokenStream{
         it.into_iter().for_each(|i|{
             match i{
                 Item::Fn(ifn) =>{
-                    if ifn.attrs.iter().any(|attr|attr.path.segments.last().unwrap().ident == Ident::new("cmod_function",Span::call_site())){
+                    if ifn.attrs.iter().any(|attr|attr.path.segments.last().unwrap().ident == Ident::new("function",Span::call_site())){
                         ident_record.push(ifn.sig.ident.clone());
                     }
                 },
