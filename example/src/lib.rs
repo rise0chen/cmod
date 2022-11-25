@@ -8,6 +8,7 @@ mod hello {
         Ok("Hello world".into())
     }
     #[cmod::function]
+    #[cmod::tags(args(name),ret)]
     async fn hello_human(name: String) -> Result<Human> {
         Human::new(name)
     }

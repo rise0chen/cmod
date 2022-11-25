@@ -1,6 +1,7 @@
+use proc_macro::TokenStream;
 use proc_macro2::Span;
-use syn::{Ident,ItemFn,ImplItemMethod,token::Comma,FnArg,punctuated::Punctuated,ReturnType, parse_quote,Type,Expr};
-
+use syn::{Ident,ItemFn,ImplItemMethod,token::Comma,FnArg,punctuated::Punctuated,ReturnType, parse_quote,Type,Expr,parse_macro_input,Pat};
+use std::collections::HashSet as Set;
 pub trait Utils{
     fn rename(before: Ident) -> Ident;
     fn rename_module(before: Ident) -> Ident;
@@ -26,22 +27,38 @@ pub struct Function{
 
 impl Function{
     pub fn parse_fn(mut input:ItemFn) -> Self{
+        let mut set:(bool,Set<Pat>) = (false,Set::new());
+        input.attrs.iter().for_each(|attr|{
+            if attr.path.segments.last().unwrap().ident == Ident::new("tags",Span::call_site()){
+                let token = TokenStream::from(attr.tokens.clone());
+                let _ = Self::args_detect(token, &mut set);
+            }
+        });
         if let ReturnType::Type(_r,ref mut ty) = input.sig.output{
             if let Type::Path(tp) = (**ty).clone(){
                 let t = tp.path.segments.last().unwrap().arguments.clone();
-                **ty = parse_quote!(
-                    pyo3::PyResult<cmod::ffi::py::ToFfi#t>
-                )
+                if set.0 {
+                    **ty = parse_quote!(
+                        pyo3::PyResult<cmod::ffi::py::ToFfi#t>
+                    )
+                }else{
+                    **ty = parse_quote!(
+                        pyo3::PyResult#t
+                    )
+                }
             }
         }
         let mut args = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i|{
             if let FnArg::Typed(t) = i{
                 let pt = *t.pat.clone();
-                args.push(parse_quote!(#pt.into_inner()));
-
-                let ty = *t.ty.clone();
-                *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
+                if set.1.contains(&pt){
+                    let ty = *t.ty.clone();
+                    args.push(parse_quote!(#pt.into_inner()));
+                    *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
+                }else{
+                    args.push(parse_quote!(#pt));
+                }
             }
         });
         Self{
@@ -54,22 +71,39 @@ impl Function{
     }
 
     pub fn parse_impl_fn(mut input:ImplItemMethod) -> Self{
+        let mut set:(bool,Set<Pat>) = (false,Set::new());
+        input.attrs.iter().for_each(|attr|{
+            if attr.path.segments.last().unwrap().ident == Ident::new("tags",Span::call_site()){
+                let token = TokenStream::from(attr.tokens.clone());
+                let _ = Self::args_detect(token, &mut set);
+            }
+        });
         if let ReturnType::Type(_r,ref mut ty) = input.sig.output{
             if let Type::Path(tp) = (**ty).clone(){
                 let t = tp.path.segments.last().unwrap().arguments.clone();
-                **ty = parse_quote!(
-                    pyo3::PyResult<cmod::ffi::py::ToFfi#t>
-                )
+                if set.0 {
+                    **ty = parse_quote!(
+                        pyo3::PyResult<cmod::ffi::py::ToFfi#t>
+                    )
+                }else{
+                    **ty = parse_quote!(
+                        pyo3::PyResult#t
+                    )
+                }
+
             }
         }
         let mut args = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i|{
             if let FnArg::Typed(t) = i{
                 let pt = *t.pat.clone();
-                args.push(parse_quote!(#pt.into_inner()));
-
-                let ty = *t.ty.clone();
-                *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
+                if set.1.contains(&pt){
+                    let ty = *t.ty.clone();
+                    args.push(parse_quote!(#pt.into_inner()));
+                    *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
+                }else{
+                    args.push(parse_quote!(#pt));
+                }
             }
         });
         Self{    
@@ -79,6 +113,30 @@ impl Function{
             args,
             ret:input.sig.output,
         }
+    }
+
+    fn args_detect(input:TokenStream,outset:&mut (bool,Set<Pat>)) -> TokenStream{
+        let pat = parse_macro_input!(input as Pat);
+        if let Pat::Tuple(et) = pat{
+            et.elems.iter().for_each(|e|{
+                match e{
+                    Pat::Ident(pi) => {
+                        if pi.ident == Ident::new("ret",Span::call_site()){
+                            outset.0 = true;
+                        }
+                    },
+                    Pat::TupleStruct(pts) => {
+                        if pts.path.segments.last().unwrap().ident == Ident::new("args",Span::call_site()){
+                            pts.pat.elems.iter().for_each(|p|{
+                                outset.1.insert(p.clone());
+                            });
+                        }
+                    }
+                    _ => ()
+                }
+            })
+        }
+        TokenStream::new()
     }
 }
 

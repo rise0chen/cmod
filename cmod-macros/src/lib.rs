@@ -28,3 +28,8 @@ pub fn methods(attr:TokenStream, input:TokenStream) -> TokenStream {
 pub fn module(attr:TokenStream, input:TokenStream) -> TokenStream {
     backend::cmod_module(attr, input)
 }
+
+#[proc_macro_attribute]
+pub fn tags(_attr:TokenStream, input:TokenStream) -> TokenStream {
+    input
+}
