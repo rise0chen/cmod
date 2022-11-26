@@ -1,11 +1,12 @@
-mod class;
-mod entry;
-mod function;
-mod module;
-mod utils;
-
-pub use entry::cmod;
-pub use function::cmod_function;
-pub use class::cmod_class;
-pub use class::cmod_methods;
-pub use module::cmod_module;
+cfg_if::cfg_if! {
+    if #[cfg(feature = "ffi_lua")] {
+        mod lua;
+        pub use lua::*;
+    } else if #[cfg(feature = "ffi_py")] {
+        mod py;
+        pub use py::*;
+    } else {
+        mod none;
+        pub use none::*;
+    }
+}

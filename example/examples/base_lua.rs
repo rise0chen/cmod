@@ -31,10 +31,7 @@ mod hello {
             bye().map_err(cmod::ffi::lua::map_err)
         }
 
-        pub fn lua_module_say<'lua>(
-            lua: &'lua mlua::Lua,
-            father: &mlua::Table,
-        ) -> mlua::Result<()> {
+        pub fn lua_module_say<'lua>(lua: &'lua mlua::Lua, father: &mlua::Table) -> mlua::Result<()> {
             let m = lua.create_table()?;
             m.set("bye", lua.create_function(lua_bye)?)?;
             father.set("say", m)
@@ -55,9 +52,7 @@ mod hello {
 
         /// 创建匿名者
         async fn anon() -> Result<Human> {
-            Ok(Human {
-                name: String::new(),
-            })
+            Ok(Human { name: String::new() })
         }
         /// 问好
         fn hello(&self) -> Result<String> {
@@ -66,15 +61,9 @@ mod hello {
     }
     impl mlua::UserData for Human {
         fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
-            methods.add_function("new", |lua, (name): (String)| {
-                Self::new(name).map_err(cmod::ffi::lua::map_err)
-            });
-            methods.add_async_function("anon", |lua, (): ()| async {
-                Self::anon().await.map_err(cmod::ffi::lua::map_err)
-            });
-            methods.add_method("new", |lua, this, (name): (String)| {
-                this.hello().map_err(cmod::ffi::lua::map_err)
-            });
+            methods.add_function("new", |lua, (name): (String)| Self::new(name).map_err(cmod::ffi::lua::map_err));
+            methods.add_async_function("anon", |lua, (): ()| async { Self::anon().await.map_err(cmod::ffi::lua::map_err) });
+            methods.add_method("new", |lua, this, (name): (String)| this.hello().map_err(cmod::ffi::lua::map_err));
         }
     }
 

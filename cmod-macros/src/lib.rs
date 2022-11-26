@@ -10,26 +10,26 @@ pub fn cmod(attr: TokenStream, input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn function(attr:TokenStream, input:TokenStream) -> TokenStream {
+pub fn function(attr: TokenStream, input: TokenStream) -> TokenStream {
     backend::cmod_function(attr, input)
 }
 
 #[proc_macro_attribute]
-pub fn class(attr:TokenStream, input:TokenStream) -> TokenStream {
+pub fn class(attr: TokenStream, input: TokenStream) -> TokenStream {
     backend::cmod_class(attr, input)
 }
 
 #[proc_macro_attribute]
-pub fn methods(attr:TokenStream, input:TokenStream) -> TokenStream {
+pub fn methods(attr: TokenStream, input: TokenStream) -> TokenStream {
     backend::cmod_methods(attr, input)
 }
 
 #[proc_macro_attribute]
-pub fn module(attr:TokenStream, input:TokenStream) -> TokenStream {
+pub fn module(attr: TokenStream, input: TokenStream) -> TokenStream {
     backend::cmod_module(attr, input)
 }
 
 #[proc_macro_attribute]
-pub fn tags(_attr:TokenStream, input:TokenStream) -> TokenStream {
+pub fn tags(_attr: TokenStream, input: TokenStream) -> TokenStream {
     input
 }

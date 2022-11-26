@@ -4,11 +4,12 @@ mod hello {
     use cmod::Result;
 
     #[cmod::function]
+    #[cmod::tags(ret)]
     fn hello_world() -> Result<String> {
         Ok("Hello world".into())
     }
     #[cmod::function]
-    #[cmod::tags(args(name),ret)]
+    #[cmod::tags(args(name))]
     async fn hello_human(name: String) -> Result<Human> {
         Human::new(name)
     }
@@ -31,17 +32,17 @@ mod hello {
     #[cmod::methods]
     impl Human {
         #[staticmethod]
+        #[cmod::tags(args(name))]
         fn new(name: String) -> Result<Human> {
             Ok(Human { name })
         }
 
         #[staticmethod]
         async fn anon() -> Result<Human> {
-            Ok(Human {
-                name: String::new(),
-            })
+            Ok(Human { name: String::new() })
         }
         #[classmethod]
+        #[cmod::tags(ret)]
         fn hello(&self) -> Result<String> {
             Ok(format!("hello, {}", self.name))
         }

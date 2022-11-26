@@ -1,16 +1,22 @@
+use super::utils::*;
 use proc_macro::TokenStream;
-use quote::{quote};
-use syn::{parse_macro_input,Ident,ItemFn};
-use super::super::utils::py::*;
+use quote::quote;
+use syn::{parse_macro_input, Ident, ItemFn};
 
 pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemFn);
     let py_input = input.clone();
     let function = Function::parse_fn(py_input);
-    let Function { name, asy, input:inp,args,ret } = function;
+    let Function {
+        name,
+        asy,
+        input: inp,
+        args,
+        ret,
+    } = function;
     let after_name = Ident::rename(name.clone());
     let name_str = name.to_string();
-    if asy{
+    if asy {
         TokenStream::from(quote!(
             #input
 
@@ -22,7 +28,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
                 })
             }
         ))
-    }else{
+    } else {
         TokenStream::from(quote!(
             #input
 

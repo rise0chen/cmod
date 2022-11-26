@@ -6,7 +6,7 @@ edition = "2018"
 license-file = "LICENSE"
 name = "cmod-macros"
 repository = "https://github.com/rise0chen/cmod.git"
-version = "0.0.1"
+version = "0.0.2"
 
 [lib]
 proc-macro = true
@@ -16,6 +16,7 @@ ffi_lua = []
 ffi_py = []
 
 [dependencies]
+cfg-if = "1"
 proc-macro2 = "1"
 quote = "1"
-syn = {version = "1", features = ["full", "extra-traits","parsing"]}
+syn = {version = "1", features = ["full", "extra-traits", "parsing"]}

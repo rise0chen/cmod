@@ -19,9 +19,7 @@ mod hello {
     #[pyo3::pyfunction]
     #[pyo3(name = "hello_human")]
     fn py_hello_human(py: pyo3::Python, name: String) -> pyo3::PyResult<Human> {
-        cmod::ffi::py::block_on(py, async move {
-            hello_human(name).await.map_err(cmod::ffi::py::map_err)
-        })
+        cmod::ffi::py::block_on(py, async move { hello_human(name).await.map_err(cmod::ffi::py::map_err) })
     }
 
     mod say {
@@ -36,10 +34,7 @@ mod hello {
             bye().map_err(cmod::ffi::py::map_err)
         }
 
-        pub fn py_module_say(
-            py: pyo3::Python<'_>,
-            father: &pyo3::types::PyModule,
-        ) -> pyo3::PyResult<()> {
+        pub fn py_module_say(py: pyo3::Python<'_>, father: &pyo3::types::PyModule) -> pyo3::PyResult<()> {
             let m = pyo3::types::PyModule::new(py, "say")?;
             m.add_function(pyo3::wrap_pyfunction!(py_bye, m)?)?;
             father.add_submodule(m)
@@ -57,9 +52,7 @@ mod hello {
         }
 
         async fn anon() -> Result<Human> {
-            Ok(Human {
-                name: String::new(),
-            })
+            Ok(Human { name: String::new() })
         }
         fn hello(&self) -> Result<String> {
             Ok(format!("hello, {}", self.name))
@@ -75,9 +68,7 @@ mod hello {
         #[staticmethod]
         #[pyo3(name = "anon")]
         fn py_anon(py: pyo3::Python) -> pyo3::PyResult<Human> {
-            cmod::ffi::py::block_on(py, async move {
-                Self::anon().await.map_err(cmod::ffi::py::map_err)
-            })
+            cmod::ffi::py::block_on(py, async move { Self::anon().await.map_err(cmod::ffi::py::map_err) })
         }
         #[pyo3(name = "hello")]
         fn py_hello<'py>(this: pyo3::Py<Self>, py: pyo3::Python<'py>) -> pyo3::PyResult<String> {
