@@ -54,19 +54,20 @@ impl Function {
                 let pt = *t.pat.clone();
                 if set.1.contains(&pt) {
                     let ty = *t.ty.clone();
-                    match &ty{
-                        Type::Path(tp)=>{
+                    match &ty {
+                        Type::Path(tp) => {
                             let ps = tp.path.segments.last().unwrap();
-                            if ps.ident == "Option"{
+                            if ps.ident == "Option" {
                                 let ty = ps.arguments.clone();
                                 *(t.ty) = parse_quote!(Option<cmod::ffi::py::FromFfi#ty>);
-                            }else{
+                                args.push(parse_quote!(#pt.map(|x| x.into_inner())));
+                            } else {
                                 *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
+                                args.push(parse_quote!(#pt.into_inner()));
                             }
                         }
-                        _=>()
+                        _ => (),
                     }
-                    args.push(parse_quote!(#pt.into_inner()));
                 } else {
                     args.push(parse_quote!(#pt));
                 }
@@ -109,19 +110,20 @@ impl Function {
                 let pt = *t.pat.clone();
                 if set.1.contains(&pt) {
                     let ty = *t.ty.clone();
-                    match &ty{
-                        Type::Path(tp)=>{
+                    match &ty {
+                        Type::Path(tp) => {
                             let ps = tp.path.segments.last().unwrap();
-                            if ps.ident == "Option"{
+                            if ps.ident == "Option" {
                                 let ty = ps.arguments.clone();
                                 *(t.ty) = parse_quote!(Option<cmod::ffi::py::FromFfi#ty>);
-                            }else{
+                                args.push(parse_quote!(#pt.map(|x| x.into_inner())));
+                            } else {
                                 *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
+                                args.push(parse_quote!(#pt.into_inner()));
                             }
                         }
-                        _=>()
+                        _ => (),
                     }
-                    args.push(parse_quote!(#pt.into_inner()));
                 } else {
                     args.push(parse_quote!(#pt));
                 }
@@ -141,7 +143,7 @@ impl Function {
         if let Pat::Tuple(et) = pat {
             et.elems.iter().for_each(|e| match e {
                 Pat::Ident(pi) => {
-                    if pi.ident == "ret"{
+                    if pi.ident == "ret" {
                         outset.0 = true;
                     }
                 }
