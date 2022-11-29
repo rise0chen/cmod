@@ -54,8 +54,19 @@ impl Function {
                 let pt = *t.pat.clone();
                 if set.1.contains(&pt) {
                     let ty = *t.ty.clone();
+                    match &ty{
+                        Type::Path(tp)=>{
+                            let ps = tp.path.segments.last().unwrap();
+                            if ps.ident == Ident::new("Option",Span::call_site()){
+                                let ty = ps.arguments.clone();
+                                *(t.ty) = parse_quote!(Option<cmod::ffi::py::FromFfi#ty>);
+                            }else{
+                                *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
+                            }
+                        }
+                        _=>()
+                    }
                     args.push(parse_quote!(#pt.into_inner()));
-                    *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
                 } else {
                     args.push(parse_quote!(#pt));
                 }
@@ -98,8 +109,19 @@ impl Function {
                 let pt = *t.pat.clone();
                 if set.1.contains(&pt) {
                     let ty = *t.ty.clone();
+                    match &ty{
+                        Type::Path(tp)=>{
+                            let ps = tp.path.segments.last().unwrap();
+                            if ps.ident == Ident::new("Option",Span::call_site()){
+                                let ty = ps.arguments.clone();
+                                *(t.ty) = parse_quote!(Option<cmod::ffi::py::FromFfi#ty>);
+                            }else{
+                                *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
+                            }
+                        }
+                        _=>()
+                    }
                     args.push(parse_quote!(#pt.into_inner()));
-                    *(t.ty) = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
                 } else {
                     args.push(parse_quote!(#pt));
                 }
