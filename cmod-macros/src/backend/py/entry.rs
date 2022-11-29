@@ -1,6 +1,5 @@
 use super::utils::Utils;
 use proc_macro::TokenStream;
-use proc_macro2::Span;
 use quote::quote;
 use std::mem;
 use syn::{parse_macro_input, parse_quote, Ident, Item, ItemFn, ItemMod, Stmt};
@@ -26,7 +25,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
                 if ifn
                     .attrs
                     .iter()
-                    .any(|a| a.path.segments.last().unwrap().ident == Ident::new("function", Span::call_site()))
+                    .any(|a| a.path.segments.last().unwrap().ident == "function")
                 {
                     let name = Ident::rename(ifn.sig.ident.clone());
                     let semi = parse_quote!(
@@ -39,7 +38,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
                 if imd
                     .attrs
                     .iter()
-                    .any(|a| a.path.segments.last().unwrap().ident == Ident::new("module", Span::call_site()))
+                    .any(|a| a.path.segments.last().unwrap().ident == "module")
                 {
                     let name = imd.ident.clone();
                     let after_name = Ident::rename_module(imd.ident.clone());
@@ -53,7 +52,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
                 if ist
                     .attrs
                     .iter()
-                    .any(|a| a.path.segments.last().unwrap().ident == Ident::new("class", Span::call_site()))
+                    .any(|a| a.path.segments.last().unwrap().ident == "class")
                 {
                     let name = ist.ident.clone();
                     let semi = parse_quote!(

@@ -1,6 +1,5 @@
 use super::utils::Utils;
 use proc_macro::TokenStream;
-use proc_macro2::Span;
 use quote::quote;
 use syn::{parse_macro_input, parse_quote, Ident, Item, ItemFn, ItemMod, Stmt};
 
@@ -17,7 +16,7 @@ pub fn cmod_module(_attr: TokenStream, input: TokenStream) -> TokenStream {
                 if ifn
                     .attrs
                     .iter()
-                    .any(|attr| attr.path.segments.last().unwrap().ident == Ident::new("function", Span::call_site()))
+                    .any(|attr| attr.path.segments.last().unwrap().ident == "function")
                 {
                     ident_record.push(ifn.sig.ident.clone());
                 }

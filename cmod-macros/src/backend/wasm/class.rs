@@ -5,7 +5,7 @@ pub fn cmod_class(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let name = input.ident.clone();
 
     TokenStream::from(quote!(
-        #[wasm_bindgen(js_class = #name)]
+        #[wasm_bindgen(js_classc = #name)]
         #input
     ))
 }

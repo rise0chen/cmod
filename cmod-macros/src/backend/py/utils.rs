@@ -29,7 +29,7 @@ impl Function {
     pub fn parse_fn(mut input: ItemFn) -> Self {
         let mut set: (bool, Set<Pat>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
-            if attr.path.segments.last().unwrap().ident == Ident::new("tags", Span::call_site()) {
+            if attr.path.segments.last().unwrap().ident == "tags" {
                 let token = TokenStream::from(attr.tokens.clone());
                 let _ = Self::args_detect(token, &mut set);
             }
@@ -57,7 +57,7 @@ impl Function {
                     match &ty{
                         Type::Path(tp)=>{
                             let ps = tp.path.segments.last().unwrap();
-                            if ps.ident == Ident::new("Option",Span::call_site()){
+                            if ps.ident == "Option"{
                                 let ty = ps.arguments.clone();
                                 *(t.ty) = parse_quote!(Option<cmod::ffi::py::FromFfi#ty>);
                             }else{
@@ -84,7 +84,7 @@ impl Function {
     pub fn parse_impl_fn(mut input: ImplItemMethod) -> Self {
         let mut set: (bool, Set<Pat>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
-            if attr.path.segments.last().unwrap().ident == Ident::new("tags", Span::call_site()) {
+            if attr.path.segments.last().unwrap().ident == "tags" {
                 let token = TokenStream::from(attr.tokens.clone());
                 let _ = Self::args_detect(token, &mut set);
             }
@@ -112,7 +112,7 @@ impl Function {
                     match &ty{
                         Type::Path(tp)=>{
                             let ps = tp.path.segments.last().unwrap();
-                            if ps.ident == Ident::new("Option",Span::call_site()){
+                            if ps.ident == "Option"{
                                 let ty = ps.arguments.clone();
                                 *(t.ty) = parse_quote!(Option<cmod::ffi::py::FromFfi#ty>);
                             }else{
@@ -141,12 +141,12 @@ impl Function {
         if let Pat::Tuple(et) = pat {
             et.elems.iter().for_each(|e| match e {
                 Pat::Ident(pi) => {
-                    if pi.ident == Ident::new("ret", Span::call_site()) {
+                    if pi.ident == "ret"{
                         outset.0 = true;
                     }
                 }
                 Pat::TupleStruct(pts) => {
-                    if pts.path.segments.last().unwrap().ident == Ident::new("args", Span::call_site()) {
+                    if pts.path.segments.last().unwrap().ident == "args" {
                         pts.pat.elems.iter().for_each(|p| {
                             outset.1.insert(p.clone());
                         });
