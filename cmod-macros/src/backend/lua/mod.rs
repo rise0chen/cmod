@@ -3,6 +3,7 @@ mod entry;
 mod function;
 mod methods;
 mod module;
+mod utils;
 
 pub use class::*;
 pub use entry::*;

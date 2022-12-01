@@ -13,11 +13,7 @@ pub fn cmod_module(_attr: TokenStream, input: TokenStream) -> TokenStream {
     if let Some((_b, it)) = item {
         it.into_iter().for_each(|i| match i {
             Item::Fn(ifn) => {
-                if ifn
-                    .attrs
-                    .iter()
-                    .any(|attr| attr.path.segments.last().unwrap().ident == "function")
-                {
+                if ifn.attrs.iter().any(|attr| attr.path.segments.last().unwrap().ident == "function") {
                     ident_record.push(ifn.sig.ident.clone());
                 }
             }

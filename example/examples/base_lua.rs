@@ -63,7 +63,7 @@ mod hello {
         fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
             methods.add_function("new", |lua, (name): (String)| Self::new(name).map_err(cmod::ffi::lua::map_err));
             methods.add_async_function("anon", |lua, (): ()| async { Self::anon().await.map_err(cmod::ffi::lua::map_err) });
-            methods.add_method("new", |lua, this, (name): (String)| this.hello().map_err(cmod::ffi::lua::map_err));
+            methods.add_method("hello", |lua, this, (name): (String)| this.hello().map_err(cmod::ffi::lua::map_err));
         }
     }
 

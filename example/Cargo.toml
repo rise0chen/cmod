@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 name = "hello"
 
 [features]
-default = ["ffi_py"]
+default = ["ffi_lua"]
 ffi_lua = ["cmod/ffi_lua", "mlua"]
 ffi_py = ["cmod/ffi_py", "pyo3"]
 
