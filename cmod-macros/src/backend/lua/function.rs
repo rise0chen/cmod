@@ -1,12 +1,12 @@
+use super::utils::*;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input,ItemFn,Ident};
-use super::utils::*;
+use syn::{parse_macro_input, Ident, ItemFn};
 
 pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemFn);
-    let py_input = input.clone();
-    let function = Function::parse_fn(py_input);
+    let lua_input = input.clone();
+    let function = Function::parse_fn(lua_input);
     let Function {
         name,
         asy,

@@ -49,8 +49,8 @@ impl Function {
             }
         }
         let mut args = Punctuated::new();
-        let mut input_pat:Punctuated<Pat,Comma> = Punctuated::new();
-        let mut input_type:Punctuated<Type,Comma> = Punctuated::new();
+        let mut input_pat: Punctuated<Pat, Comma> = Punctuated::new();
+        let mut input_type: Punctuated<Type, Comma> = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i| {
             if let FnArg::Typed(t) = i {
                 let pt = *t.pat.clone();
@@ -77,11 +77,11 @@ impl Function {
                 }
             }
         });
-        let input_arg:Punctuated<FnArg,Comma> = parse_quote!((#input_pat):(#input_type));
+        let input_arg: Punctuated<FnArg, Comma> = parse_quote!((#input_pat):(#input_type));
         Self {
             name: input.sig.ident,
             asy: input.sig.asyncness.is_some(),
-            input:input_arg,
+            input: input_arg,
             args,
             ret: input.sig.output,
         }
@@ -110,8 +110,8 @@ impl Function {
             }
         }
         let mut args = Punctuated::new();
-        let mut input_pat:Punctuated<Pat,Comma> = Punctuated::new();
-        let mut input_type:Punctuated<Type,Comma> = Punctuated::new();
+        let mut input_pat: Punctuated<Pat, Comma> = Punctuated::new();
+        let mut input_type: Punctuated<Type, Comma> = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i| {
             if let FnArg::Typed(t) = i {
                 let pt = *t.pat.clone();
@@ -138,11 +138,11 @@ impl Function {
                 }
             }
         });
-        let input_arg:Punctuated<FnArg,Comma> = parse_quote!((#input_pat):(#input_type));
+        let input_arg: Punctuated<FnArg, Comma> = parse_quote!((#input_pat):(#input_type));
         Self {
             name: input.sig.ident,
             asy: input.sig.asyncness.is_some(),
-            input:input_arg,
+            input: input_arg,
             args,
             ret: input.sig.output,
         }

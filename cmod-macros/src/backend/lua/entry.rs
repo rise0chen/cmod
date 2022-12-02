@@ -22,11 +22,11 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
                     let name = ifn.sig.ident.clone();
                     let after_name = Ident::rename(name.clone());
                     let name_str = name.to_string();
-                    let semi = if ifn.sig.asyncness.is_some(){
+                    let semi = if ifn.sig.asyncness.is_some() {
                         parse_quote!(
                             m.set(#name_str,lua.create_async_function(#after_name)?)?;
                         )
-                    }else{
+                    } else {
                         parse_quote!(
                             m.set(#name_str,lua.create_function(#after_name)?)?;
                         )
