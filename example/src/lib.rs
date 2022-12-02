@@ -1,4 +1,3 @@
-#![feature(type_ascription)]
 #[cmod::cmod]
 mod hello {
     use cmod::Result;

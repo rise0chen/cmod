@@ -36,7 +36,7 @@ pub fn cmod_module(_attr: TokenStream, input: TokenStream) -> TokenStream {
     ));
     if let Some(ref mut ct) = input.content {
         let mut ifn: ItemFn = parse_quote!(
-            pub fn #after_name(lua:&'lua mlua::Lua, father: &mlua::Table) -> mlua::Result<()>{
+            pub fn #after_name<'lua>(lua:&'lua mlua::Lua, father: &mlua::Table) -> mlua::Result<()>{
                 let m = lua.create_table()?;
             }
         );

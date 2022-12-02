@@ -71,7 +71,7 @@ pub fn method_static(input: ImplItemMethod) -> Stmt {
     let name_str = name.to_string();
     if asy {
         parse_quote!(
-            methods.add_async_function(#name_str,|lua,#inp|Self::#name(#args).await.map_err(cmod::ffi::lua::map_err));
+            methods.add_async_function(#name_str,|lua,#inp|async {Self::#name(#args).await.map_err(cmod::ffi::lua::map_err)});
         )
     } else {
         parse_quote!(
@@ -93,7 +93,7 @@ pub fn method_class(input: ImplItemMethod) -> Stmt {
     let name_str = name.to_string();
     if asy {
         parse_quote!(
-            methods.add_async_method(#name_str,|lua,this,#inp|this.#name(#args).await.map_err(cmod::ffi::lua::map_err));
+            methods.add_async_method(#name_str,|lua,this,#inp|async {this.#name(#args).await.map_err(cmod::ffi::lua::map_err)});
         )
     } else {
         parse_quote!(
