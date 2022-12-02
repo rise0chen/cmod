@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use std::collections::HashSet as Set;
-use syn::{parse_macro_input, parse_quote, punctuated::Punctuated, token::Comma, Expr, FnArg, Ident, ImplItemMethod, ItemFn, Pat, ReturnType, Type };
+use syn::{parse_macro_input, parse_quote, punctuated::Punctuated, token::Comma, Expr, FnArg, Ident, ImplItemMethod, ItemFn, Pat, ReturnType, Type};
 pub trait Utils {
     fn rename(before: Ident) -> Ident;
     fn rename_module(before: Ident) -> Ident;
@@ -39,7 +39,7 @@ impl Function {
                 let t = tp.path.segments.last().unwrap().arguments.clone();
                 if set.0 {
                     **ty = parse_quote!(
-                        mlua::Result<cmod::ffi::py::ToFfi#t>
+                        mlua::Result<cmod::ffi::lua::ToFfi#t>
                     )
                 } else {
                     **ty = parse_quote!(
@@ -49,47 +49,39 @@ impl Function {
             }
         }
         let mut args = Punctuated::new();
+        let mut input_pat:Punctuated<Pat,Comma> = Punctuated::new();
+        let mut input_type:Punctuated<Type,Comma> = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i| {
             if let FnArg::Typed(t) = i {
-                let mut pat:Punctuated<Pat,Comma> = Punctuated::new();
-                match *t.pat{
-                    Pat::Tuple(ref pt) =>{
-                        pat = pt.elems.clone();
-                    },
-                    _ => ()
-                }
-                match *t.ty{
-                    Type::Tuple(ref mut ty) => {
-                        ty.elems.iter_mut().zip(pat.into_iter()).for_each(|(t,p)|{
-                            if set.1.contains(&p){
-                                let ty = t.clone();
-                                match &ty {
-                                    Type::Path(tp) => {
-                                        let ps = tp.path.segments.last().unwrap();
-                                        if ps.ident == "Option" {
-                                            let ty = ps.arguments.clone();
-                                            *t = parse_quote!(Option<cmod::ffi::py::FromFfi#ty>);
-                                            args.push(parse_quote!(#p.map(|x| x.into_inner())));
-                                        } else {
-                                            *t = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
-                                            args.push(parse_quote!(#p.into_inner()));
-                                        }
-                                    }
-                                    _ => (),
-                                }
+                let pt = *t.pat.clone();
+                input_pat.push(pt.clone());
+                if set.1.contains(&pt) {
+                    let ty = *t.ty.clone();
+                    match &ty {
+                        Type::Path(tp) => {
+                            let ps = tp.path.segments.last().unwrap();
+                            if ps.ident == "Option" {
+                                let ty = ps.arguments.clone();
+                                input_type.push(parse_quote!(Option<cmod::ffi::lua::FromFfi#ty>));
+                                args.push(parse_quote!(#pt.map(|x| x.into_inner())));
                             } else {
-                                args.push(parse_quote!(#p));
+                                input_type.push(parse_quote!(cmod::ffi::lua::FromFfi<#ty>));
+                                args.push(parse_quote!(#pt.into_inner()));
                             }
-                        })
-                    },
-                    _ => ()
+                        }
+                        _ => (),
+                    }
+                } else {
+                    input_type.push(*t.ty.clone());
+                    args.push(parse_quote!(#pt));
                 }
             }
         });
+        let input_arg:Punctuated<FnArg,Comma> = parse_quote!((#input_pat):(#input_type));
         Self {
             name: input.sig.ident,
             asy: input.sig.asyncness.is_some(),
-            input: input.sig.inputs,
+            input:input_arg,
             args,
             ret: input.sig.output,
         }
@@ -108,7 +100,7 @@ impl Function {
                 let t = tp.path.segments.last().unwrap().arguments.clone();
                 if set.0 {
                     **ty = parse_quote!(
-                        mlua::Result<cmod::ffi::py::ToFfi#t>
+                        mlua::Result<cmod::ffi::lua::ToFfi#t>
                     )
                 } else {
                     **ty = parse_quote!(
@@ -118,47 +110,39 @@ impl Function {
             }
         }
         let mut args = Punctuated::new();
+        let mut input_pat:Punctuated<Pat,Comma> = Punctuated::new();
+        let mut input_type:Punctuated<Type,Comma> = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i| {
             if let FnArg::Typed(t) = i {
-                let mut pat:Punctuated<Pat,Comma> = Punctuated::new();
-                match *t.pat{
-                    Pat::Tuple(ref pt) =>{
-                        pat = pt.elems.clone();
-                    },
-                    _ => ()
-                }
-                match *t.ty{
-                    Type::Tuple(ref mut ty) => {
-                        ty.elems.iter_mut().zip(pat.into_iter()).for_each(|(t,p)|{
-                            if set.1.contains(&p){
-                                let ty = t.clone();
-                                match &ty {
-                                    Type::Path(tp) => {
-                                        let ps = tp.path.segments.last().unwrap();
-                                        if ps.ident == "Option" {
-                                            let ty = ps.arguments.clone();
-                                            *t = parse_quote!(Option<cmod::ffi::py::FromFfi#ty>);
-                                            args.push(parse_quote!(#p.map(|x| x.into_inner())));
-                                        } else {
-                                            *t = parse_quote!(cmod::ffi::py::FromFfi<#ty>);
-                                            args.push(parse_quote!(#p.into_inner()));
-                                        }
-                                    }
-                                    _ => (),
-                                }
+                let pt = *t.pat.clone();
+                input_pat.push(pt.clone());
+                if set.1.contains(&pt) {
+                    let ty = *t.ty.clone();
+                    match &ty {
+                        Type::Path(tp) => {
+                            let ps = tp.path.segments.last().unwrap();
+                            if ps.ident == "Option" {
+                                let ty = ps.arguments.clone();
+                                input_type.push(parse_quote!(Option<cmod::ffi::lua::FromFfi#ty>));
+                                args.push(parse_quote!(#pt.map(|x| x.into_inner())));
                             } else {
-                                args.push(parse_quote!(#p));
+                                input_type.push(parse_quote!(cmod::ffi::lua::FromFfi<#ty>));
+                                args.push(parse_quote!(#pt.into_inner()));
                             }
-                        })
-                    },
-                    _ => ()
+                        }
+                        _ => (),
+                    }
+                } else {
+                    input_type.push(*t.ty.clone());
+                    args.push(parse_quote!(#pt));
                 }
             }
         });
+        let input_arg:Punctuated<FnArg,Comma> = parse_quote!((#input_pat):(#input_type));
         Self {
             name: input.sig.ident,
             asy: input.sig.asyncness.is_some(),
-            input: input.sig.inputs,
+            input:input_arg,
             args,
             ret: input.sig.output,
         }

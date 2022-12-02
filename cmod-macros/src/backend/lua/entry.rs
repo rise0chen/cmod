@@ -1,4 +1,4 @@
-use super::utils::Utils;
+use super::utils::*;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, parse_quote, Ident, Item, ItemFn, ItemMod, Stmt};

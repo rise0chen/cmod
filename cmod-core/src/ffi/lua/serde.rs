@@ -16,7 +16,7 @@ impl<'lua, T: Deserialize<'lua>> FromLua<'lua> for FromFfi<T> {
 
 /// 从Rust类型转为外部语言
 pub struct ToFfi<T: Serialize>(T);
-impl<T> From<T> for ToFfi<T> {
+impl<T:Serialize> From<T> for ToFfi<T> {
     fn from(t: T) -> Self {
         Self(t)
     }

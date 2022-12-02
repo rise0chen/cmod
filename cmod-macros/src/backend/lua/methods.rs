@@ -29,16 +29,16 @@ pub fn cmod_methods(_attr: TokenStream, input: TokenStream) -> TokenStream {
         _ => (),
     });
     let mut ifn:ImplItemMethod = parse_quote!(
-        impl mlua::UserData for Human{
-            fn add_methods<'lua,M:mlua::UserDataMethods<'lua,Self>>(methods:&mut M) {
-            }
+        fn add_methods<'lua,M:mlua::UserDataMethods<'lua,Self>>(methods:&mut M) {
         }
     );
     ifn.block.stmts = item_record;
     TokenStream::from(quote!(
         #input
         
-        #ifn
+        impl mlua::UserData for Human{
+            #ifn
+        }
     ))
 }
 
@@ -87,11 +87,10 @@ pub fn method_class(input: ImplItemMethod) -> Stmt {
     let Function {
         name,
         asy,
-        input: mut inp,
+        input: inp,
         args,
         ret:_,
     } = function;
-    inp = inp.into_iter().skip(1).collect();
     let name_str = name.to_string();
     if asy {
         parse_quote!(
