@@ -94,7 +94,7 @@ pub fn method_class(input: ImplItemMethod) -> Stmt {
     let name_str = name.to_string();
     if asy {
         parse_quote!(
-            methods.add_async_method(#name_str,|lua,this,#inp|async {this.#name(#args).await.map_err(cmod::ffi::lua::map_err)});
+            methods.add_async_method(#name_str,|lua,this,#inp|async move{this.#name(#args).await.map_err(cmod::ffi::lua::map_err)});
         )
     } else {
         parse_quote!(

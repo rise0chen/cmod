@@ -45,5 +45,9 @@ mod hello {
         fn hello(&self) -> Result<String> {
             Ok(format!("hello, {}", self.name))
         }
+        #[classmethod]
+        async fn bye(&self) -> Result<String> {
+            Ok(format!("bye, {}", self.name))
+        }
     }
 }
