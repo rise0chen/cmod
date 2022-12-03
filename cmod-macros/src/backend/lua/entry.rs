@@ -49,7 +49,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
                     let name = ist.ident.clone();
                     let name_str = name.to_string();
                     let semi = parse_quote!(
-                        m.set(#name_str,#name::default())?;
+                        m.set(#name_str,lua.create_proxy::<#name>()?)?;
                     );
                     item_record.push(semi);
                 }

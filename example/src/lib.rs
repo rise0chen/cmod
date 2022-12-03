@@ -24,7 +24,7 @@ mod hello {
     }
 
     #[cmod::class]
-    #[derive(Clone, Default)]
+    #[derive(Clone)]
     struct Human {
         name: String,
     }

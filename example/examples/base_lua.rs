@@ -38,7 +38,7 @@ mod hello {
         }
     }
 
-    #[derive(Clone, Default)]
+    #[derive(Clone)]
     /// 人
     struct Human {
         /// 姓名
@@ -63,7 +63,7 @@ mod hello {
         fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
             methods.add_function("new", |lua, (name): (String)| Self::new(name).map_err(cmod::ffi::lua::map_err));
             methods.add_async_function("anon", |lua, (): ()| async { Self::anon().await.map_err(cmod::ffi::lua::map_err) });
-            methods.add_method("hello", |lua, this, (name): (String)| this.hello().map_err(cmod::ffi::lua::map_err));
+            methods.add_method("hello", |lua, this, (): ()| this.hello().map_err(cmod::ffi::lua::map_err));
         }
     }
 
@@ -73,7 +73,7 @@ mod hello {
         m.set("hello_world", lua.create_function(lua_hello_world)?)?;
         m.set("hello_human", lua.create_async_function(lua_hello_human)?)?;
         say::lua_module_say(lua, &m)?;
-        m.set("Human", Human::default())?;
+		m.set("Human", lua.create_proxy::<Human>()?)?;
         Ok(m)
     }
 }
