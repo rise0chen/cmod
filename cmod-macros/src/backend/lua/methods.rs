@@ -6,6 +6,7 @@ use syn::{parse_macro_input, parse_quote, ImplItem, ImplItemMethod, ItemImpl, St
 pub fn cmod_methods(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut input = parse_macro_input!(input as ItemImpl);
     let lua_input = input.clone();
+    let class_type = lua_input.self_ty;
 
     input.attrs.clear();
     input.items.iter_mut().for_each(|ii| match ii {
@@ -35,7 +36,7 @@ pub fn cmod_methods(_attr: TokenStream, input: TokenStream) -> TokenStream {
     TokenStream::from(quote!(
         #input
 
-        impl mlua::UserData for Human{
+        impl mlua::UserData for #class_type {
             #ifn
         }
     ))
