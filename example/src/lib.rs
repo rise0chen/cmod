@@ -1,11 +1,12 @@
 #[cmod::cmod]
 mod hello {
+    use crate::A;
     use cmod::Result;
 
     #[cmod::function]
     #[cmod::tags(ret)]
-    fn hello_world() -> Result<String> {
-        Ok("Hello world".into())
+    fn hello_world() -> Result<A> {
+        Ok(A("Hello world".into()))
     }
     #[cmod::function]
     #[cmod::tags(args(name))]
@@ -42,8 +43,8 @@ mod hello {
         }
         #[classmethod]
         #[cmod::tags(ret)]
-        fn hello(&self) -> Result<String> {
-            Ok(format!("hello, {}", self.name))
+        fn hello(&self) -> Result<A> {
+            Ok(A(format!("hello, {}", self.name)))
         }
         #[classmethod]
         async fn bye(&self) -> Result<String> {
@@ -51,3 +52,7 @@ mod hello {
         }
     }
 }
+
+use serde::{Deserialize, Serialize};
+#[derive(Deserialize, Serialize)]
+struct A(String);

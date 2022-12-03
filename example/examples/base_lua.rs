@@ -73,7 +73,7 @@ mod hello {
         m.set("hello_world", lua.create_function(lua_hello_world)?)?;
         m.set("hello_human", lua.create_async_function(lua_hello_human)?)?;
         say::lua_module_say(lua, &m)?;
-		m.set("Human", lua.create_proxy::<Human>()?)?;
+        m.set("Human", lua.create_proxy::<Human>()?)?;
         Ok(m)
     }
 }

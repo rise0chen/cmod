@@ -23,10 +23,12 @@ pub struct Function {
     pub input: Punctuated<FnArg, Comma>,
     pub args: Punctuated<Expr, Comma>,
     pub ret: ReturnType,
+    pub map_ret: proc_macro2::TokenStream,
 }
 
 impl Function {
     pub fn parse_fn(mut input: ItemFn) -> Self {
+        let mut map_ret = proc_macro2::TokenStream::default();
         let mut set: (bool, Set<Pat>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
             if attr.path.segments.last().unwrap().ident == "tags" {
@@ -40,11 +42,14 @@ impl Function {
                 if set.0 {
                     **ty = parse_quote!(
                         pyo3::PyResult<cmod::ffi::py::ToFfi#t>
-                    )
+                    );
+                    map_ret = quote::quote!(
+                        .map(cmod::ffi::py::ToFfi::from)
+                    );
                 } else {
                     **ty = parse_quote!(
                         pyo3::PyResult#t
-                    )
+                    );
                 }
             }
         }
@@ -79,10 +84,12 @@ impl Function {
             input: input.sig.inputs,
             args,
             ret: input.sig.output,
+            map_ret,
         }
     }
 
     pub fn parse_impl_fn(mut input: ImplItemMethod) -> Self {
+        let mut map_ret = proc_macro2::TokenStream::default();
         let mut set: (bool, Set<Pat>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
             if attr.path.segments.last().unwrap().ident == "tags" {
@@ -96,11 +103,14 @@ impl Function {
                 if set.0 {
                     **ty = parse_quote!(
                         pyo3::PyResult<cmod::ffi::py::ToFfi#t>
-                    )
+                    );
+                    map_ret = quote::quote!(
+                        .map(cmod::ffi::py::ToFfi::from)
+                    );
                 } else {
                     **ty = parse_quote!(
                         pyo3::PyResult#t
-                    )
+                    );
                 }
             }
         }
@@ -135,6 +145,7 @@ impl Function {
             input: input.sig.inputs,
             args,
             ret: input.sig.output,
+            map_ret,
         }
     }
 

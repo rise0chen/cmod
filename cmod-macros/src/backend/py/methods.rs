@@ -67,6 +67,7 @@ pub fn method_static(input: ImplItemMethod) -> ImplItemMethod {
         input: inp,
         args,
         ret,
+        map_ret
     } = function;
     let after_name = Ident::rename(name.clone());
     let name_str = name.to_string();
@@ -76,7 +77,7 @@ pub fn method_static(input: ImplItemMethod) -> ImplItemMethod {
             #[pyo3(name = #name_str)]
             fn #after_name(py: pyo3::Python, #inp)#ret{
                 cmod::ffi::py::block_on(py, async move{
-                    Self::#name(#args).await.map_err(cmod::ffi::py::map_err).map(|x|x.into())
+                    Self::#name(#args).await.map_err(cmod::ffi::py::map_err)#map_ret
                 })
             }
         )
@@ -85,7 +86,7 @@ pub fn method_static(input: ImplItemMethod) -> ImplItemMethod {
             #[staticmethod]
             #[pyo3(name = #name_str)]
             fn #after_name(py: pyo3::Python, #inp)#ret{
-                Self::#name(#args).map_err(cmod::ffi::py::map_err).map(|x|x.into())
+                Self::#name(#args).map_err(cmod::ffi::py::map_err)#map_ret
             }
         )
     }
@@ -100,6 +101,7 @@ pub fn method_class(input: ImplItemMethod) -> ImplItemMethod {
         input: mut inp,
         args,
         ret,
+        map_ret
     } = function;
     inp = inp.into_iter().skip(1).collect();
     let after_name = Ident::rename(name.clone());
@@ -110,7 +112,7 @@ pub fn method_class(input: ImplItemMethod) -> ImplItemMethod {
             fn #after_name<'py>(this:pyo3::Py<Self>,py: pyo3::Python<'py>, #inp)#ret{
                 let this:Self = this.extract(py)?;
                 cmod::ffi::py::block_on(py, async move{
-                    this.#name(#args).await.map_err(cmod::ffi::py::map_err).map(|x|x.into())
+                    this.#name(#args).await.map_err(cmod::ffi::py::map_err)#map_ret
                 })
             }
         )
@@ -119,7 +121,7 @@ pub fn method_class(input: ImplItemMethod) -> ImplItemMethod {
             #[pyo3(name = #name_str)]
             fn #after_name<'py>(this: pyo3::Py<Self>,py: pyo3::Python<'py>, #inp)#ret{
                 let this:Self = this.extract(py)?;
-                this.#name(#args).map_err(cmod::ffi::py::map_err).map(|x|x.into())
+                this.#name(#args).map_err(cmod::ffi::py::map_err)#map_ret
             }
         )
     }

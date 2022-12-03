@@ -175,6 +175,7 @@ dependencies = [
  "cmod",
  "mlua",
  "pyo3",
+ "serde",
 ]
 
 [[package]]

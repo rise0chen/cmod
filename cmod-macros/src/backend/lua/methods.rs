@@ -68,15 +68,16 @@ pub fn method_static(input: ImplItemMethod) -> Stmt {
         input: inp,
         args,
         ret: _,
+        map_ret,
     } = function;
     let name_str = name.to_string();
     if asy {
         parse_quote!(
-            methods.add_async_function(#name_str,|lua,#inp|async {Self::#name(#args).await.map_err(cmod::ffi::lua::map_err)});
+            methods.add_async_function(#name_str,|lua,#inp|async {Self::#name(#args).await.map_err(cmod::ffi::lua::map_err)#map_ret});
         )
     } else {
         parse_quote!(
-            methods.add_function(#name_str,|lua,#inp|Self::#name(#args).map_err(cmod::ffi::lua::map_err));
+            methods.add_function(#name_str,|lua,#inp|Self::#name(#args).map_err(cmod::ffi::lua::map_err)#map_ret);
         )
     }
 }
@@ -90,15 +91,16 @@ pub fn method_class(input: ImplItemMethod) -> Stmt {
         input: inp,
         args,
         ret: _,
+        map_ret,
     } = function;
     let name_str = name.to_string();
     if asy {
         parse_quote!(
-            methods.add_async_method(#name_str,|lua,this,#inp|async move{this.#name(#args).await.map_err(cmod::ffi::lua::map_err)});
+            methods.add_async_method(#name_str,|lua,this,#inp|async move{this.#name(#args).await.map_err(cmod::ffi::lua::map_err)#map_ret});
         )
     } else {
         parse_quote!(
-            methods.add_method(#name_str,|lua,this,#inp|this.#name(#args).map_err(cmod::ffi::lua::map_err));
+            methods.add_method(#name_str,|lua,this,#inp|this.#name(#args).map_err(cmod::ffi::lua::map_err)#map_ret);
         )
     }
 }

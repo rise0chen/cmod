@@ -13,6 +13,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
         input: inp,
         args,
         ret,
+        map_ret,
     } = function;
     let after_name = Ident::rename(name.clone());
     let name_str = name.to_string();
@@ -24,7 +25,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
             #[pyo3(name = #name_str)]
             fn #after_name(py: pyo3::Python, #inp)#ret{
                 cmod::ffi::py::block_on(py, async move{
-                    #name(#args).await.map_err(cmod::ffi::py::map_err).map(|x|x.into())
+                    #name(#args).await.map_err(cmod::ffi::py::map_err)#map_ret
                 })
             }
         ))
@@ -35,7 +36,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
             #[pyo3::pyfunction]
             #[pyo3(name = #name_str)]
             fn #after_name(py: pyo3::Python, #inp)#ret{
-                #name(#args).map_err(cmod::ffi::py::map_err).map(|x|x.into())
+                #name(#args).map_err(cmod::ffi::py::map_err)#map_ret
             }
         ))
     }

@@ -13,6 +13,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
         input: inp,
         args,
         ret,
+        map_ret,
     } = function;
     let after_name = Ident::rename(name.clone());
     if asy {
@@ -20,7 +21,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
             #input
 
             async fn #after_name<'lua>(lua: &'lua mlua::Lua, #inp)#ret{
-                #name(#args).await.map_err(cmod::ffi::lua::map_err).map(|x|x.into())
+                #name(#args).await.map_err(cmod::ffi::lua::map_err)#map_ret
             }
         ))
     } else {
@@ -28,7 +29,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
             #input
 
             fn #after_name<'lua>(lua: &'lua mlua::Lua, #inp)#ret{
-                #name(#args).map_err(cmod::ffi::lua::map_err).map(|x|x.into())
+                #name(#args).map_err(cmod::ffi::lua::map_err)#map_ret
             }
         ))
     }
