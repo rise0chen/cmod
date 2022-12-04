@@ -7,7 +7,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let name = input.sig.ident.clone();
 
     TokenStream::from(quote!(
-        #[wasm_bindgen(js_name = #name)]
+        #[wasm_bindgen::prelude::wasm_bindgen(js_name = #name)]
         #input
     ))
 }

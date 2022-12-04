@@ -15,8 +15,8 @@ impl<'py, T: Deserialize<'py>> FromPyObject<'py> for FromFfi<T> {
     }
 }
 
-pub struct ToFfi<T: Serialize>(T);
-impl<T: Serialize> From<T> for ToFfi<T> {
+pub struct ToFfi<T>(T);
+impl<T> From<T> for ToFfi<T> {
     fn from(t: T) -> Self {
         Self(t)
     }

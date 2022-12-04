@@ -12,6 +12,7 @@ version = "0.0.2"
 default = []
 ffi_lua = ["cmod-macros/ffi_lua", "cmod-core/ffi_lua"]
 ffi_py = ["cmod-macros/ffi_py", "cmod-core/ffi_py"]
+ffi_wasm = ["cmod-macros/ffi_wasm", "cmod-core/ffi_wasm"]
 
 [dependencies]
 cmod-core = {version = "0", path = "../cmod-core"}
