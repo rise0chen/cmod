@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use std::collections::HashSet as Set;
-use syn::{parse_macro_input, parse_quote, Expr, FnArg, Ident, ImplItemMethod, ItemFn, Pat, ReturnType, Type, Stmt};
+use syn::{parse_macro_input, parse_quote, punctuated::Punctuated, token::Comma, Expr, FnArg, Ident, ImplItemMethod, ItemFn, Pat, ReturnType, Type};
 pub trait Utils {
     fn rename(before: Ident) -> Ident;
     fn rename_module(before: Ident) -> Ident;
@@ -18,11 +18,17 @@ impl Utils for Ident {
 }
 
 pub struct Function {
+    pub name: Ident,
+    pub asy: bool,
+    pub input: Punctuated<FnArg, Comma>,
+    pub args: Punctuated<Expr, Comma>,
+    pub ret: ReturnType,
+    pub map_ret: proc_macro2::TokenStream,
 }
 
 impl Function {
-    pub fn parse_fn(mut input: ItemFn) -> ItemFn {
-        let mut map_ret = false;
+    pub fn parse_fn(mut input: ItemFn) -> Self {
+        let mut map_ret = proc_macro2::TokenStream::default();
         let mut set: (bool, Set<Pat>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
             if attr.path.segments.last().unwrap().ident == "tags" {
@@ -35,13 +41,19 @@ impl Function {
                 let t = tp.path.segments.last().unwrap().arguments.clone();
                 if set.0 {
                     **ty = parse_quote!(
-                        Result<cmod::ffi::wasm::ToFfi#t>
+                        JResult<cmod::ffi::wasm::ToFfi#t>
                     );
-                    map_ret = true;
+                    map_ret = quote::quote!(
+                        .map(cmod::ffi::wasm::ToFfi::from)
+                    );
+                } else {
+                    **ty = parse_quote!(
+                        JResult#t
+                    );
                 }
             }
         }
-        let mut args:Vec<Stmt> = Vec::new();
+        let mut args = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i| {
             if let FnArg::Typed(t) = i {
                 let pt = *t.pat.clone();
@@ -53,39 +65,31 @@ impl Function {
                             if ps.ident == "Option" {
                                 let ty = ps.arguments.clone();
                                 *(t.ty) = parse_quote!(Option<cmod::ffi::wasm::FromFfi#ty>);
-                                args.push(parse_quote!(let #pt = #pt.map(|x| x.into_inner());));
+                                args.push(parse_quote!(#pt.map(|x| x.into_inner())));
                             } else {
                                 *(t.ty) = parse_quote!(cmod::ffi::wasm::FromFfi<#ty>);
-                                args.push(parse_quote!(let #pt = #pt.into_inner();));
+                                args.push(parse_quote!(#pt.into_inner()));
                             }
                         }
                         _ => (),
                     }
+                } else {
+                    args.push(parse_quote!(#pt));
                 }
             }
         });
-        args.append(&mut input.block.stmts.clone());
-        if map_ret{
-            args.iter_mut().for_each(|stmt|{
-                match stmt{
-                    Stmt::Semi(expr,_) => {
-                        if let Expr::Return(ret) = expr{
-                            if let Some(ref mut exp) = ret.expr{
-                                let p = *exp.clone();
-                                *exp = parse_quote!(#p.map(cmod::ffi::wasm::ToFfi::from));
-                            }
-                        }
-                    }
-                    _=>()
-                }
-            })
+        Self {
+            name: input.sig.ident,
+            asy: input.sig.asyncness.is_some(),
+            input: input.sig.inputs,
+            args,
+            ret: input.sig.output,
+            map_ret,
         }
-        input.block.stmts = args;
-        input
     }
 
-    pub fn parse_impl_fn(mut input: ImplItemMethod) -> ImplItemMethod {
-        let mut map_ret = false;
+    pub fn parse_impl_fn(mut input: ImplItemMethod) -> Self {
+        let mut map_ret = proc_macro2::TokenStream::default();
         let mut set: (bool, Set<Pat>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
             if attr.path.segments.last().unwrap().ident == "tags" {
@@ -98,13 +102,19 @@ impl Function {
                 let t = tp.path.segments.last().unwrap().arguments.clone();
                 if set.0 {
                     **ty = parse_quote!(
-                        Result<cmod::ffi::wasm::ToFfi#t>
+                        JResult<cmod::ffi::wasm::ToFfi#t>
                     );
-                    map_ret = true;
+                    map_ret = quote::quote!(
+                        .map(cmod::ffi::wasm::ToFfi::from)
+                    );
+                } else {
+                    **ty = parse_quote!(
+                        JResult#t
+                    );
                 }
             }
         }
-        let mut args:Vec<Stmt> = Vec::new();
+        let mut args = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i| {
             if let FnArg::Typed(t) = i {
                 let pt = *t.pat.clone();
@@ -116,35 +126,27 @@ impl Function {
                             if ps.ident == "Option" {
                                 let ty = ps.arguments.clone();
                                 *(t.ty) = parse_quote!(Option<cmod::ffi::wasm::FromFfi#ty>);
-                                args.push(parse_quote!(let #pt = #pt.map(|x| x.into_inner());));
+                                args.push(parse_quote!(#pt.map(|x| x.into_inner())));
                             } else {
                                 *(t.ty) = parse_quote!(cmod::ffi::wasm::FromFfi<#ty>);
-                                args.push(parse_quote!(let #pt = #pt.into_inner();));
+                                args.push(parse_quote!(#pt.into_inner()));
                             }
                         }
                         _ => (),
                     }
+                } else {
+                    args.push(parse_quote!(#pt));
                 }
             }
         });
-        args.append(&mut input.block.stmts.clone());
-        if map_ret{
-            args.iter_mut().for_each(|stmt|{
-                match stmt{
-                    Stmt::Semi(expr,_) => {
-                        if let Expr::Return(ret) = expr{
-                            if let Some(ref mut exp) = ret.expr{
-                                let p = *exp.clone();
-                                *exp = parse_quote!(#p.map(cmod::ffi::wasm::ToFfi::from));
-                            }
-                        }
-                    }
-                    _=>()
-                }
-            })
+        Self {
+            name: input.sig.ident,
+            asy: input.sig.asyncness.is_some(),
+            input: input.sig.inputs,
+            args,
+            ret: input.sig.output,
+            map_ret,
         }
-        input.block.stmts = args;
-        input
     }
 
     fn args_detect(input: TokenStream, outset: &mut (bool, Set<Pat>)) -> TokenStream {
