@@ -68,18 +68,18 @@ pub fn method_static(input: ImplItemMethod) -> ImplItemMethod {
         input: inp,
         args,
         ret,
-        map_ret
+        map_ret,
     } = function;
     let after_name = Ident::rename(name.clone());
     if asy {
-        if name == "new"{
+        if name == "new" {
             parse_quote!(
                 #[wasm_bindgen(js_name = #name, constructor)]
                 pub async fn #after_name(#inp)#ret{
                     Self::#name(#args).await.map_err(cmod::ffi::wasm::map_err)#map_ret
                 }
             )
-        }else{
+        } else {
             parse_quote!(
                 #[wasm_bindgen(js_name = #name)]
                 pub async fn #after_name(#inp)#ret{
@@ -87,15 +87,15 @@ pub fn method_static(input: ImplItemMethod) -> ImplItemMethod {
                 }
             )
         }
-    } else { 
-        if name == "new"{
+    } else {
+        if name == "new" {
             parse_quote!(
                 #[wasm_bindgen(js_name = #name, constructor)]
                 pub fn #after_name(#inp)#ret{
                     Self::#name(#args).map_err(cmod::ffi::wasm::map_err)#map_ret
                 }
             )
-        }else{
+        } else {
             parse_quote!(
                 #[wasm_bindgen(js_name = #name)]
                 pub fn #after_name(#inp)#ret{
@@ -115,7 +115,7 @@ pub fn method_class(input: ImplItemMethod) -> ImplItemMethod {
         input: inp,
         args,
         ret,
-        map_ret
+        map_ret,
     } = function;
     let after_name = Ident::rename(name.clone());
     if asy {

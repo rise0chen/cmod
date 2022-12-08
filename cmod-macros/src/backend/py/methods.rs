@@ -67,7 +67,7 @@ pub fn method_static(input: ImplItemMethod) -> ImplItemMethod {
         input: inp,
         args,
         ret,
-        map_ret
+        map_ret,
     } = function;
     let after_name = Ident::rename(name.clone());
     let name_str = name.to_string();
@@ -101,7 +101,7 @@ pub fn method_class(input: ImplItemMethod) -> ImplItemMethod {
         input: mut inp,
         args,
         ret,
-        map_ret
+        map_ret,
     } = function;
     inp = inp.into_iter().skip(1).collect();
     let after_name = Ident::rename(name.clone());

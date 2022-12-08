@@ -4,7 +4,6 @@ pub mod hello {
     use cmod::Result;
     use wasm_bindgen::prelude;
 
-    
     #[wasm_bindgen(js_name = hello_world)]
     pub fn hello_world() -> Result<cmod::ffi::wasm::ToFfi<A>> {
         Ok(A("Hello world".into()).into())
@@ -14,7 +13,6 @@ pub mod hello {
     pub async fn hello_human(name: String) -> Result<Human> {
         Human::new(name)
     }
-
 
     #[wasm_bindgen(js_name = Human)]
     #[derive(Clone)]
@@ -47,4 +45,4 @@ use serde::{Deserialize, Serialize};
 #[derive(Deserialize, Serialize)]
 #[wasm_bindgen(js_name = A)]
 pub struct A(String);
-fn main(){}
+fn main() {}
