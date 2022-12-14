@@ -22,6 +22,11 @@ impl<T: for<'de> Deserialize<'de>> FromWasmAbi for FromFfi<T> {
         Self(serde_wasm_bindgen::from_value(JsValue::from_abi(js)).unwrap())
     }
 }
+impl<T: for<'de> Deserialize<'de>> OptionFromWasmAbi for FromFfi<T> {
+    fn is_none(abi: &Self::Abi) -> bool {
+        abi == &JsValue::UNDEFINED.into_abi() || abi == &JsValue::NULL.into_abi()
+    }
+}
 
 /// 从Rust类型转为外部语言
 pub struct ToFfi<T>(T);
@@ -40,5 +45,10 @@ impl<T: Serialize> IntoWasmAbi for ToFfi<T> {
 
     fn into_abi(self) -> Self::Abi {
         serde_wasm_bindgen::to_value(&self.0).unwrap().into_abi()
+    }
+}
+impl<T: Serialize> OptionIntoWasmAbi for ToFfi<T> {
+    fn none() -> Self::Abi {
+        JsValue::NULL.into_abi()
     }
 }

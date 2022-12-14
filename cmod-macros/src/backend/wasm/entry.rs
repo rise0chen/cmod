@@ -8,12 +8,6 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
         items.insert(
             0,
             parse_quote!(
-                type Result<T> = std::result::Result<T, String>;
-            ),
-        );
-        items.insert(
-            0,
-            parse_quote!(
                 type JResult<T> = std::result::Result<T, JsError>;
             ),
         );

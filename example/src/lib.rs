@@ -1,6 +1,7 @@
 #[cmod::cmod]
 pub mod hello {
     use crate::A;
+    use cmod::Result;
 
     #[cmod::function]
     #[cmod::tags(ret)]
