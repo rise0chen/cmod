@@ -27,6 +27,11 @@ impl<T: for<'de> Deserialize<'de>> OptionFromWasmAbi for FromFfi<T> {
         abi == &JsValue::UNDEFINED.into_abi() || abi == &JsValue::NULL.into_abi()
     }
 }
+impl<T: for<'de> Deserialize<'de>> From<JsValue> for FromFfi<T> {
+    fn from(value: JsValue) -> Self {
+        unsafe { Self::from_abi(value.into_abi()) }
+    }
+}
 
 /// 从Rust类型转为外部语言
 pub struct ToFfi<T>(T);
@@ -50,5 +55,10 @@ impl<T: Serialize> IntoWasmAbi for ToFfi<T> {
 impl<T: Serialize> OptionIntoWasmAbi for ToFfi<T> {
     fn none() -> Self::Abi {
         JsValue::NULL.into_abi()
+    }
+}
+impl<T: Serialize> From<ToFfi<T>> for JsValue {
+    fn from(value: ToFfi<T>) -> Self {
+        unsafe { JsValue::from_abi(value.into_abi()) }
     }
 }
