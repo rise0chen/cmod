@@ -10,8 +10,12 @@ pub mod hello {
     }
     #[cmod::function]
     #[cmod::tags(args(name))]
-    pub async fn hello_human(name: String) -> Result<Human> {
-        Human::new(name)
+    pub async fn hello_human(name: Option<String>) -> Result<Human> {
+        if let Some(name) = name {
+            Human::new(name)
+        } else {
+            Human::anon().await
+        }
     }
 
     #[cmod::module]

@@ -1,0 +1,34 @@
+name: CI
+on: [push, pull_request]
+env:
+  CLICOLOR_FORCE: 1
+jobs:
+  ci:
+    name: CI
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: [stable, beta, nightly]
+        os: [ubuntu-latest]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        profile: minimal
+        override: true
+    - name: Build Rust Crate
+      run: cargo build --release --no-default-features
+      working-directory: example
+    - name: Build Lua FFI
+      run: cargo build --release --no-default-features --features ffi_lua
+      working-directory: example
+    - name: Build Py FFI
+      run: cargo build --release --no-default-features --features ffi_py
+      working-directory: example
+    - name: Build Wasm FFI
+      run: cargo build --release --no-default-features --features ffi_wasm
+      working-directory: example
