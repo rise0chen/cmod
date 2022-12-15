@@ -28,6 +28,7 @@ jobs:
         target: ${{ matrix.target }}
         profile: minimal
         override: true
+    - uses: Swatinem/rust-cache@v2
     - name: Build Rust Crate
       run: cargo build --release --no-default-features
       working-directory: example
