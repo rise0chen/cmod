@@ -10,7 +10,14 @@ jobs:
       fail-fast: false
       matrix:
         rust: [stable, beta, nightly]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest,windows-latest,macos-latest]
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: macos-latest
+            target: x86_64-apple-darwin
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -18,6 +25,7 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: ${{ matrix.rust }}
+        target: ${{ matrix.target }}
         profile: minimal
         override: true
     - name: Build Rust Crate

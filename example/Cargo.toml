@@ -17,7 +17,7 @@ ffi_wasm = ["cmod/ffi_wasm", "wasm-bindgen", "wasm-bindgen-futures"]
 
 [dependencies]
 cmod = {version = "0", path = "../cmod"}
-mlua = {version = "0.8", features = ["lua54"], optional = true}
+mlua = {version = "0.8", features = ["lua54","vendored"], optional = true}
 pyo3 = {version = "0.17", features = ["abi3-py37"], optional = true}
 serde = {version = "1", features = ["derive"]}
 wasm-bindgen = {version = "0.2", optional = true}
