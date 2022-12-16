@@ -1,0 +1,42 @@
+name: Build Wasm
+run-name: Wasm building
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  builds:
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [web, nodejs, bundler]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v1
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Build
+        run: wasm-pack build --release --target ${{ matrix.target }} -- --no-default-features --features ffi_wasm
