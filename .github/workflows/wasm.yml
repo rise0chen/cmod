@@ -40,3 +40,4 @@ jobs:
           submodules: true
       - name: Build
         run: wasm-pack build --release --target ${{ matrix.target }} -- --no-default-features --features ffi_wasm
+        working-directory: example

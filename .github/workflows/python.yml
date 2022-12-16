@@ -43,7 +43,7 @@ jobs:
           toolchain: stable
           target: ${{ matrix.platform.target }}
       - uses: Swatinem/rust-cache@v1
-      - name: Insatll Cross Compiler
+      - name: Install Cross Compiler
         if: ${{ matrix.platform.archit == 'aarch64' && matrix.platform.os == 'ubuntu-latest' }}
         run: |
           sudo apt-get update
@@ -58,3 +58,4 @@ jobs:
           container: off
           command: build
           args: --release --no-default-features --features ffi_py --target ${{matrix.platform.target}}
+          working-directory: example

@@ -45,7 +45,7 @@ jobs:
           toolchain: stable
           target: ${{ matrix.platform.target }}
       - uses: Swatinem/rust-cache@v1
-      - name: Insatll Cross Compiler
+      - name: Install Cross Compiler
         if: ${{ matrix.platform.archit == 'aarch64' && matrix.platform.os == 'ubuntu-latest' }}
         run: |
           sudo apt-get update
@@ -66,7 +66,9 @@ jobs:
       - name: Build
         if: ${{ matrix.platform.os != 'windows-latest' }}
         run: cargo build --release --no-default-features --features ffi_lua --target ${{matrix.platform.target}}
+        working-directory: example
       - name: Build
         if: ${{ matrix.platform.os == 'windows-latest' }}
         run: cargo build --release --no-default-features --features ffi_lua --target ${{matrix.platform.target}}
+        working-directory: example
         shell: msys2 {0}
