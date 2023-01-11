@@ -11,13 +11,13 @@ version = "0.1.0"
 [features]
 default = []
 ffi_lua = ["mlua"]
-ffi_py = ["pyo3", "pyo3-asyncio", "pythonize"]
+ffi_py = ["pyo3", "futures-executor", "pythonize"]
 ffi_wasm = ["wasm-bindgen", "serde-wasm-bindgen"]
 
 [dependencies]
+futures-executor = {version = "0.3", optional = true}
 mlua = {version = "0.8", features = ["send", "async", "serialize", "module"], optional = true}
 pyo3 = {version = "0.17", features = ["serde", "extension-module"], optional = true}
-pyo3-asyncio = {version = "0.17", features = ["tokio-runtime"], optional = true}
 pythonize = {version = "0.17", optional = true}
 serde = {version = "1", features = ["derive"]}
 serde-wasm-bindgen = {version = "0.4", optional = true}

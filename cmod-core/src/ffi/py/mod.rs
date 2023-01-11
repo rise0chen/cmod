@@ -14,5 +14,6 @@ where
     F: Future<Output = PyResult<T>> + Send + 'static,
     T: Send + Sync + 'static,
 {
-    pyo3_asyncio::tokio::run(py, f)
+    let _ = py;
+    futures_executor::block_on(f)
 }
