@@ -6,7 +6,7 @@ edition = "2018"
 license-file = "LICENSE"
 name = "cmod-core"
 repository = "https://github.com/rise0chen/cmod.git"
-version = "0.1.0"
+version = "0.1.1"
 
 [features]
 default = []
