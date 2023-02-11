@@ -14,11 +14,20 @@ pub fn init_runtime(runtime: &'static Runtime) -> Result<(), ()> {
     pyo3_asyncio::tokio::init_with_runtime(runtime)
 }
 
+#[cfg(feature = "ffi_py_asyncio")]
+pub fn block_on<F, T>(py: Python, f: F) -> PyResult<&PyAny>
+where
+    F: Future<Output = PyResult<T>> + Send + 'static,
+    T: IntoPy<PyObject> + Send + Sync + 'static,
+{
+    pyo3_asyncio::tokio::future_into_py(py, f)
+}
+#[cfg(not(feature = "ffi_py_asyncio"))]
 pub fn block_on<F, T>(py: Python, f: F) -> PyResult<T>
 where
     F: Future<Output = PyResult<T>> + Send + 'static,
-    T: Send + Sync + 'static,
+    T: IntoPy<PyObject> + Send + Sync + 'static,
 {
-    let _ = py;
-    pyo3_asyncio::tokio::get_runtime().block_on(f)
+    let event_loop = pyo3_asyncio::tokio::get_current_loop(py)?;
+    pyo3_asyncio::tokio::run_until_complete(event_loop, f)
 }

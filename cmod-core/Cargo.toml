@@ -12,6 +12,7 @@ version = "0.1.2"
 default = []
 ffi_lua = ["mlua"]
 ffi_py = ["pyo3", "pyo3-asyncio", "pythonize", "tokio"]
+ffi_py_asyncio = ["ffi_py"]
 ffi_wasm = ["wasm-bindgen", "serde-wasm-bindgen"]
 
 [dependencies]

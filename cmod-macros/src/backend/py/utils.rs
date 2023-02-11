@@ -40,16 +40,14 @@ impl Function {
             if let Type::Path(tp) = (**ty).clone() {
                 let t = tp.path.segments.last().unwrap().arguments.clone();
                 if set.0 {
-                    **ty = parse_quote!(
-                        pyo3::PyResult<cmod::ffi::py::ToFfi#t>
-                    );
-                    map_ret = quote::quote!(
-                        .map(cmod::ffi::py::ToFfi::from)
-                    );
+                    **ty = parse_quote!(pyo3::PyResult<cmod::ffi::py::ToFfi#t>);
+                    map_ret = quote::quote!(.map(cmod::ffi::py::ToFfi::from));
                 } else {
-                    **ty = parse_quote!(
-                        pyo3::PyResult#t
-                    );
+                    **ty = parse_quote!(pyo3::PyResult#t);
+                }
+                #[cfg(feature = "ffi_py_asyncio")]
+                if input.sig.asyncness.is_some(){
+                    **ty = parse_quote!(pyo3::PyResult<&cmod::ffi::py::PyAny>);
                 }
             }
         }
@@ -101,16 +99,14 @@ impl Function {
             if let Type::Path(tp) = (**ty).clone() {
                 let t = tp.path.segments.last().unwrap().arguments.clone();
                 if set.0 {
-                    **ty = parse_quote!(
-                        pyo3::PyResult<cmod::ffi::py::ToFfi#t>
-                    );
-                    map_ret = quote::quote!(
-                        .map(cmod::ffi::py::ToFfi::from)
-                    );
+                    **ty = parse_quote!(pyo3::PyResult<cmod::ffi::py::ToFfi#t>);
+                    map_ret = quote::quote!(.map(cmod::ffi::py::ToFfi::from));
                 } else {
-                    **ty = parse_quote!(
-                        pyo3::PyResult#t
-                    );
+                    **ty = parse_quote!(pyo3::PyResult#t);
+                }
+                #[cfg(feature = "ffi_py_asyncio")]
+                if input.sig.asyncness.is_some(){
+                    **ty = parse_quote!(pyo3::PyResult<&cmod::ffi::py::PyAny>);
                 }
             }
         }

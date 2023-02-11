@@ -14,6 +14,7 @@ proc-macro = true
 [features]
 ffi_lua = []
 ffi_py = []
+ffi_py_asyncio = ["ffi_py"]
 ffi_wasm = []
 
 [dependencies]
