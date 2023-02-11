@@ -28,6 +28,5 @@ where
     F: Future<Output = PyResult<T>> + Send + 'static,
     T: IntoPy<PyObject> + Send + Sync + 'static,
 {
-    let event_loop = pyo3_asyncio::tokio::get_current_loop(py)?;
-    pyo3_asyncio::tokio::run_until_complete(event_loop, f)
+    pyo3_asyncio::tokio::run(py, f)
 }
