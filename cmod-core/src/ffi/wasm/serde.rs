@@ -19,7 +19,7 @@ impl<T: for<'de> Deserialize<'de>> FromWasmAbi for FromFfi<T> {
     type Abi = u32;
 
     unsafe fn from_abi(js: Self::Abi) -> Self {
-        Self(serde_wasm_bindgen::from_value(JsValue::from_abi(js)).unwrap())
+        JsValue::from_abi(js).into()
     }
 }
 impl<T: for<'de> Deserialize<'de>> OptionFromWasmAbi for FromFfi<T> {
@@ -29,7 +29,7 @@ impl<T: for<'de> Deserialize<'de>> OptionFromWasmAbi for FromFfi<T> {
 }
 impl<T: for<'de> Deserialize<'de>> From<JsValue> for FromFfi<T> {
     fn from(value: JsValue) -> Self {
-        unsafe { Self::from_abi(value.into_abi()) }
+        Self(serde_wasm_bindgen::from_value(value).unwrap())
     }
 }
 
@@ -49,7 +49,7 @@ impl<T: Serialize> IntoWasmAbi for ToFfi<T> {
     type Abi = u32;
 
     fn into_abi(self) -> Self::Abi {
-        serde_wasm_bindgen::to_value(&self.0).unwrap().into_abi()
+        JsValue::from(self).into_abi()
     }
 }
 impl<T: Serialize> OptionIntoWasmAbi for ToFfi<T> {
@@ -59,6 +59,6 @@ impl<T: Serialize> OptionIntoWasmAbi for ToFfi<T> {
 }
 impl<T: Serialize> From<ToFfi<T>> for JsValue {
     fn from(value: ToFfi<T>) -> Self {
-        unsafe { JsValue::from_abi(value.into_abi()) }
+        serde_wasm_bindgen::to_value(&value.0).unwrap()
     }
 }
