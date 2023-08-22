@@ -9,11 +9,11 @@ pub trait Utils {
 
 impl Utils for Ident {
     fn rename(before: Ident) -> Ident {
-        return Ident::new(format!("lua_{}", before.to_string()).as_str(), Span::call_site());
+        return Ident::new(format!("lua_{}", before).as_str(), Span::call_site());
     }
 
     fn rename_module(before: Ident) -> Ident {
-        return Ident::new(format!("lua_module_{}", before.to_string()).as_str(), Span::call_site());
+        return Ident::new(format!("lua_module_{}", before).as_str(), Span::call_site());
     }
 }
 

@@ -46,7 +46,7 @@ impl Function {
                     **ty = parse_quote!(pyo3::PyResult#t);
                 }
                 #[cfg(feature = "ffi_py_asyncio")]
-                if input.sig.asyncness.is_some(){
+                if input.sig.asyncness.is_some() {
                     **ty = parse_quote!(pyo3::PyResult<&cmod::ffi::py::PyAny>);
                 }
             }
@@ -105,7 +105,7 @@ impl Function {
                     **ty = parse_quote!(pyo3::PyResult#t);
                 }
                 #[cfg(feature = "ffi_py_asyncio")]
-                if input.sig.asyncness.is_some(){
+                if input.sig.asyncness.is_some() {
                     **ty = parse_quote!(pyo3::PyResult<&cmod::ffi::py::PyAny>);
                 }
             }

@@ -6,7 +6,7 @@ edition = "2018"
 license-file = "LICENSE"
 name = "cmod"
 repository = "https://github.com/rise0chen/cmod.git"
-version = "0.1.4"
+version = "0.2.1"
 
 [features]
 default = []
@@ -16,5 +16,5 @@ ffi_py_asyncio = ["cmod-macros/ffi_py_asyncio", "cmod-core/ffi_py_asyncio"]
 ffi_wasm = ["cmod-macros/ffi_wasm", "cmod-core/ffi_wasm"]
 
 [dependencies]
-cmod-core = {version = "0.1", path = "../cmod-core"}
-cmod-macros = {version = "0.1", path = "../cmod-macros"}
+cmod-core = {version = "0.2", path = "../cmod-core"}
+cmod-macros = {version = "0.2", path = "../cmod-macros"}

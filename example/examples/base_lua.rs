@@ -67,8 +67,8 @@ mod hello {
         }
     }
 
-    #[mlua::lua_module]
-    fn hello(lua: &mlua::Lua) -> mlua::Result<mlua::Table> {
+    #[mlua::lua_module(name = "hello")]
+    fn lua_module_hello(lua: &mlua::Lua) -> mlua::Result<mlua::Table> {
         let m = lua.create_table()?;
         m.set("hello_world", lua.create_function(lua_hello_world)?)?;
         m.set("hello_human", lua.create_async_function(lua_hello_human)?)?;

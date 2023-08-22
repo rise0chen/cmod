@@ -6,9 +6,11 @@ use syn::{parse_macro_input, parse_quote, Ident, Item, ItemFn, ItemMod, Stmt};
 pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut input = parse_macro_input!(input as ItemMod);
     let name = input.ident.clone();
+    let name_str = name.to_string();
+    let after_name = Ident::rename_module(name.clone());
     let mut ifn: ItemFn = parse_quote!(
-        #[mlua::lua_module]
-        fn #name(lua:&mlua::Lua) -> mlua::Result<mlua::Table>{
+        #[mlua::lua_module(name = #name_str)]
+        fn #after_name(lua:&mlua::Lua) -> mlua::Result<mlua::Table>{
             let m = lua.create_table()?;
         }
     );

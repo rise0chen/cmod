@@ -1,5 +1,5 @@
 use mlua::prelude::*;
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
 
 /// 从外部语言转为Rust类型
 pub struct FromFfi<T>(T);
@@ -8,7 +8,7 @@ impl<T> FromFfi<T> {
         self.0
     }
 }
-impl<'lua, T: Deserialize<'lua>> FromLua<'lua> for FromFfi<T> {
+impl<'lua, T: DeserializeOwned> FromLua<'lua> for FromFfi<T> {
     fn from_lua(lua_value: LuaValue<'lua>, lua: &'lua Lua) -> LuaResult<Self> {
         lua.from_value(lua_value).map(|x| Self(x))
     }
@@ -21,8 +21,8 @@ impl<T> From<T> for ToFfi<T> {
         Self(t)
     }
 }
-impl<'lua, T: Serialize> ToLua<'lua> for ToFfi<T> {
-    fn to_lua(self, lua: &'lua Lua) -> LuaResult<LuaValue<'lua>> {
+impl<'lua, T: Serialize> IntoLua<'lua> for ToFfi<T> {
+    fn into_lua(self, lua: &'lua Lua) -> LuaResult<LuaValue<'lua>> {
         lua.to_value(&self.0)
     }
 }
