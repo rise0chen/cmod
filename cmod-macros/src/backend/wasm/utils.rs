@@ -29,7 +29,7 @@ pub struct Function {
 impl Function {
     pub fn parse_fn(mut input: ItemFn) -> Self {
         let mut map_ret = proc_macro2::TokenStream::default();
-        let mut set: (bool, Set<Pat>) = (false, Set::new());
+        let mut set: (bool, Set<Ident>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
             if attr.meta.path().segments.last().unwrap().ident == "tags" {
                 let token = attr.meta.require_list().unwrap().parse_args_with(Punctuated::parse_terminated).unwrap();
@@ -87,7 +87,7 @@ impl Function {
 
     pub fn parse_impl_fn(mut input: ImplItemFn) -> Self {
         let mut map_ret = proc_macro2::TokenStream::default();
-        let mut set: (bool, Set<Pat>) = (false, Set::new());
+        let mut set: (bool, Set<Ident>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
             if attr.meta.path().segments.last().unwrap().ident == "tags" {
                 let token = attr.meta.require_list().unwrap().parse_args_with(Punctuated::parse_terminated).unwrap();

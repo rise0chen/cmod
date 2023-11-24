@@ -102,7 +102,6 @@ name = "cmod-macros"
 version = "0.3.0"
 dependencies = [
  "cfg-if",
- "cmod-core",
  "proc-macro2",
  "quote",
  "syn 2.0.39",
@@ -218,6 +217,7 @@ version = "0.0.1"
 dependencies = [
  "cmod",
  "mlua",
+ "pyo3",
  "serde",
  "wasm-bindgen",
  "wasm-bindgen-futures",

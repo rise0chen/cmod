@@ -29,7 +29,7 @@ pub struct Function {
 impl Function {
     pub fn parse_fn(mut input: ItemFn) -> Self {
         let mut map_ret = proc_macro2::TokenStream::default();
-        let mut set: (bool, Set<Pat>) = (false, Set::new());
+        let mut set: (bool, Set<Ident>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
             if attr.meta.path().segments.last().unwrap().ident == "tags" {
                 let token = attr.meta.require_list().unwrap().parse_args_with(Punctuated::parse_terminated).unwrap();
@@ -58,7 +58,7 @@ impl Function {
         let mut input_type: Punctuated<Type, Comma> = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i| {
             if let FnArg::Typed(t) = i {
-                input_pat.push(t.pat.clone());
+                input_pat.push(*t.pat.clone());
                 let pt = if let Pat::Ident(pt) = &*t.pat { &pt.ident } else { return };
                 if set.1.contains(pt) {
                     let ty = *t.ty.clone();
@@ -92,7 +92,7 @@ impl Function {
 
     pub fn parse_impl_fn(mut input: ImplItemFn) -> Self {
         let mut map_ret = proc_macro2::TokenStream::default();
-        let mut set: (bool, Set<Pat>) = (false, Set::new());
+        let mut set: (bool, Set<Ident>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
             if attr.path().segments.last().unwrap().ident == "tags" {
                 let token = attr.meta.require_list().unwrap().parse_args_with(Punctuated::parse_terminated).unwrap();
@@ -121,7 +121,7 @@ impl Function {
         let mut input_type: Punctuated<Type, Comma> = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i| {
             if let FnArg::Typed(t) = i {
-                input_pat.push(t.pat.clone());
+                input_pat.push(*t.pat.clone());
                 let pt = if let Pat::Ident(pt) = &*t.pat { &pt.ident } else { return };
                 if set.1.contains(pt) {
                     let ty = *t.ty.clone();
