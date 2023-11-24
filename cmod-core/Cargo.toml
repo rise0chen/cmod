@@ -19,9 +19,9 @@ ffi_wasm = ["wasm-bindgen", "serde-wasm-bindgen"]
 
 [dependencies]
 mlua = {version = "0.9", features = ["send", "async", "serialize", "module"], optional = true}
-pyo3 = {version = "0.19", features = ["serde", "extension-module"], optional = true}
-pyo3-asyncio = {version = "0.19", features = ["tokio-runtime"], optional = true}
-pythonize = {version = "0.19", optional = true}
+pyo3 = {version = "0.20", features = ["serde", "extension-module"], optional = true}
+pyo3-asyncio = {version = "0.20", features = ["tokio-runtime"], optional = true}
+pythonize = {version = "0.20", optional = true}
 serde = {version = "1", features = ["derive"]}
 serde-wasm-bindgen = {version = "0.6", optional = true}
 tokio = {version = "1", optional = true}
