@@ -10,14 +10,14 @@ crate-type = ["cdylib"]
 name = "hello"
 
 [features]
-default = []
+default = ["ffi_lua"]
 ffi_lua = ["cmod/ffi_lua", "mlua"]
 ffi_py = ["cmod/ffi_py", "pyo3"]
 ffi_py_asyncio = ["cmod/ffi_py_asyncio", "pyo3"]
 ffi_wasm = ["cmod/ffi_wasm", "wasm-bindgen", "wasm-bindgen-futures"]
 
 [dependencies]
-cmod = {version = "0.2", path = "../cmod"}
+cmod = {workspace = true}
 mlua = {version = "0.9", features = ["lua54"], optional = true}
 pyo3 = {version = "0.19", features = ["abi3-py37"], optional = true}
 serde = {version = "1", features = ["derive"]}

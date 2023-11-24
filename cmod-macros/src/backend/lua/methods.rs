@@ -1,7 +1,7 @@
 use super::utils::*;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, parse_quote, ImplItem, ImplItemMethod, ItemImpl, Stmt};
+use syn::{parse_macro_input, parse_quote, ImplItem, ImplItemFn, ItemImpl, Stmt};
 
 pub fn cmod_methods(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut input = parse_macro_input!(input as ItemImpl);
@@ -9,16 +9,14 @@ pub fn cmod_methods(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let class_type = lua_input.self_ty;
 
     input.attrs.clear();
-    input.items.iter_mut().for_each(|ii| match ii {
-        ImplItem::Method(md) => {
+    input.items.iter_mut().for_each(|ii| 
+       if let ImplItem::Fn(md) =ii {
             md.attrs.clear();
-        }
-        _ => (),
-    });
+        });
 
     let mut item_record: Vec<Stmt> = Vec::new();
-    lua_input.items.iter().for_each(|ii| match ii {
-        ImplItem::Method(md) => match inner_method_handle(md) {
+    lua_input.items.iter().for_each(|ii|
+      if let  ImplItem::Fn(md) =ii{ match inner_method_handle(md) {
             Flag::Static => {
                 item_record.push(method_static(md.clone()));
             }
@@ -26,10 +24,9 @@ pub fn cmod_methods(_attr: TokenStream, input: TokenStream) -> TokenStream {
                 item_record.push(method_class(md.clone()));
             }
             _ => (),
-        },
-        _ => (),
+        }
     });
-    let mut ifn: ImplItemMethod = parse_quote!(
+    let mut ifn: ImplItemFn = parse_quote!(
         fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {}
     );
     ifn.block.stmts = item_record;
@@ -48,18 +45,18 @@ enum Flag {
     Class,
 }
 
-fn inner_method_handle(inner_method: &ImplItemMethod) -> Flag {
+fn inner_method_handle(inner_method: &ImplItemFn) -> Flag {
     for p in inner_method.attrs.iter() {
-        if p.path.is_ident("staticmethod") {
+        if p.meta.path().is_ident("staticmethod") {
             return Flag::Static;
-        } else if p.path.is_ident("classmethod") {
+        } else if p.meta.path().is_ident("classmethod") {
             return Flag::Class;
         }
     }
-    return Flag::Empty;
+     Flag::Empty
 }
 
-pub fn method_static(input: ImplItemMethod) -> Stmt {
+pub fn method_static(input: ImplItemFn) -> Stmt {
     let lua_input = input.clone();
     let function = Function::parse_impl_fn(lua_input);
     let Function {
@@ -82,7 +79,7 @@ pub fn method_static(input: ImplItemMethod) -> Stmt {
     }
 }
 
-pub fn method_class(input: ImplItemMethod) -> Stmt {
+pub fn method_class(input: ImplItemFn) -> Stmt {
     let lua_input = input.clone();
     let function = Function::parse_impl_fn(lua_input);
     let Function {

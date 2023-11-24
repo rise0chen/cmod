@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use std::collections::HashSet as Set;
-use syn::{parse_macro_input, parse_quote, punctuated::Punctuated, token::Comma, Expr, FnArg, Ident, ImplItemMethod, ItemFn, Pat, ReturnType, Type};
+use syn::{parse_quote, punctuated::Punctuated, token::Comma, Expr, FnArg, Ident, ImplItemFn, ItemFn, Meta, Pat, PatPath, ReturnType, Type};
 pub trait Utils {
     fn rename(before: Ident) -> Ident;
     fn rename_module(before: Ident) -> Ident;
@@ -31,8 +31,8 @@ impl Function {
         let mut map_ret = proc_macro2::TokenStream::default();
         let mut set: (bool, Set<Pat>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
-            if attr.path.segments.last().unwrap().ident == "tags" {
-                let token = TokenStream::from(attr.tokens.clone());
+            if attr.meta.path().segments.last().unwrap().ident == "tags" {
+                let token = attr.meta.require_list().unwrap().parse_args_with(Punctuated::parse_terminated).unwrap();
                 let _ = Self::args_detect(token, &mut set);
             }
         });
@@ -41,14 +41,14 @@ impl Function {
                 let t = tp.path.segments.last().unwrap().arguments.clone();
                 if set.0 {
                     **ty = parse_quote!(
-                        mlua::Result<cmod::ffi::lua::ToFfi#t>
+                        mlua::Result<cmod::ffi::lua::ToFfi #t>
                     );
                     map_ret = quote::quote!(
                         .map(cmod::ffi::lua::ToFfi::from)
                     );
                 } else {
                     **ty = parse_quote!(
-                        mlua::Result#t
+                        mlua::Result #t
                     );
                 }
             }
@@ -62,19 +62,16 @@ impl Function {
                 input_pat.push(pt.clone());
                 if set.1.contains(&pt) {
                     let ty = *t.ty.clone();
-                    match &ty {
-                        Type::Path(tp) => {
-                            let ps = tp.path.segments.last().unwrap();
-                            if ps.ident == "Option" {
-                                let ty = ps.arguments.clone();
-                                input_type.push(parse_quote!(Option<cmod::ffi::lua::FromFfi#ty>));
-                                args.push(parse_quote!(#pt.map(|x| x.into_inner())));
-                            } else {
-                                input_type.push(parse_quote!(cmod::ffi::lua::FromFfi<#ty>));
-                                args.push(parse_quote!(#pt.into_inner()));
-                            }
+                    if let Type::Path(tp) = &ty {
+                        let ps = tp.path.segments.last().unwrap();
+                        if ps.ident == "Option" {
+                            let ty = ps.arguments.clone();
+                            input_type.push(parse_quote!(Option<cmod::ffi::lua::FromFfi #ty>));
+                            args.push(parse_quote!(#pt.map(|x| x.into_inner())));
+                        } else {
+                            input_type.push(parse_quote!(cmod::ffi::lua::FromFfi<#ty>));
+                            args.push(parse_quote!(#pt.into_inner()));
                         }
-                        _ => (),
                     }
                 } else {
                     input_type.push(*t.ty.clone());
@@ -93,12 +90,12 @@ impl Function {
         }
     }
 
-    pub fn parse_impl_fn(mut input: ImplItemMethod) -> Self {
+    pub fn parse_impl_fn(mut input: ImplItemFn) -> Self {
         let mut map_ret = proc_macro2::TokenStream::default();
         let mut set: (bool, Set<Pat>) = (false, Set::new());
         input.attrs.iter().for_each(|attr| {
-            if attr.path.segments.last().unwrap().ident == "tags" {
-                let token = TokenStream::from(attr.tokens.clone());
+            if attr.path().segments.last().unwrap().ident == "tags" {
+                let token = attr.meta.require_list().unwrap().parse_args_with(Punctuated::parse_terminated).unwrap();
                 let _ = Self::args_detect(token, &mut set);
             }
         });
@@ -107,14 +104,14 @@ impl Function {
                 let t = tp.path.segments.last().unwrap().arguments.clone();
                 if set.0 {
                     **ty = parse_quote!(
-                        mlua::Result<cmod::ffi::lua::ToFfi#t>
+                        mlua::Result<cmod::ffi::lua::ToFfi #t>
                     );
                     map_ret = quote::quote!(
                         .map(cmod::ffi::lua::ToFfi::from)
                     );
                 } else {
                     **ty = parse_quote!(
-                        mlua::Result#t
+                        mlua::Result #t
                     );
                 }
             }
@@ -128,19 +125,16 @@ impl Function {
                 input_pat.push(pt.clone());
                 if set.1.contains(&pt) {
                     let ty = *t.ty.clone();
-                    match &ty {
-                        Type::Path(tp) => {
-                            let ps = tp.path.segments.last().unwrap();
-                            if ps.ident == "Option" {
-                                let ty = ps.arguments.clone();
-                                input_type.push(parse_quote!(Option<cmod::ffi::lua::FromFfi#ty>));
-                                args.push(parse_quote!(#pt.map(|x| x.into_inner())));
-                            } else {
-                                input_type.push(parse_quote!(cmod::ffi::lua::FromFfi<#ty>));
-                                args.push(parse_quote!(#pt.into_inner()));
-                            }
+                    if let Type::Path(tp) = &ty {
+                        let ps = tp.path.segments.last().unwrap();
+                        if ps.ident == "Option" {
+                            let ty = ps.arguments.clone();
+                            input_type.push(parse_quote!(Option<cmod::ffi::lua::FromFfi #ty>));
+                            args.push(parse_quote!(#pt.map(|x| x.into_inner())));
+                        } else {
+                            input_type.push(parse_quote!(cmod::ffi::lua::FromFfi<#ty>));
+                            args.push(parse_quote!(#pt.into_inner()));
                         }
-                        _ => (),
                     }
                 } else {
                     input_type.push(*t.ty.clone());
@@ -159,25 +153,18 @@ impl Function {
         }
     }
 
-    fn args_detect(input: TokenStream, outset: &mut (bool, Set<Pat>)) -> TokenStream {
-        let pat = parse_macro_input!(input as Pat);
-        if let Pat::Tuple(et) = pat {
-            et.elems.iter().for_each(|e| match e {
-                Pat::Ident(pi) => {
-                    if pi.ident == "ret" {
-                        outset.0 = true;
-                    }
-                }
-                Pat::TupleStruct(pts) => {
-                    if pts.path.segments.last().unwrap().ident == "args" {
-                        pts.pat.elems.iter().for_each(|p| {
-                            outset.1.insert(p.clone());
-                        });
-                    }
-                }
-                _ => (),
-            })
-        }
+    fn args_detect(input: Punctuated<Meta, Comma>, outset: &mut (bool, Set<Pat>)) -> TokenStream {
+        input.iter().for_each(|e| {
+            if e.path().segments.last().unwrap().ident == "ret" {
+                outset.0 = true;
+            }
+            if e.path().segments.last().unwrap().ident == "args" {
+                let args: Punctuated<PatPath, Comma> = e.require_list().unwrap().parse_args_with(Punctuated::parse_terminated).unwrap();
+                args.into_iter().for_each(|p| {
+                    outset.1.insert(p.into());
+                });
+            }
+        });
         TokenStream::new()
     }
 }

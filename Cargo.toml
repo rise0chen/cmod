@@ -7,4 +7,20 @@ members = [
 ]
 resolver = "2"
 
+[workspace.package]
+authors = ["rise0chen <rise0chen@163.com>"]
+categories = ["development-tools::ffi"]
+description = "Build a cross-language module with Rust FFI"
+edition = "2021"
+keywords = ["kvdb"]
+license-file = "LICENSE"
+readme = "./README.md"
+repository = "https://github.com/rise0chen/cmod.git"
+version = "0.3.0"
+
+[workspace.dependencies]
+cmod = {version = "0", path = "./cmod", default-features = false}
+cmod-core = {version = "0", path = "./cmod-core", default-features = false}
+cmod-macros = {version = "0", path = "./cmod-macros", default-features = false}
+
 [patch.crates-io]

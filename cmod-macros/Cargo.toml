@@ -1,24 +1,27 @@
 [package]
-authors = ["rise0chen <rise0chen@163.com>"]
-categories = ["development-tools::ffi"]
-description = "Proc macros for cmod"
-edition = "2018"
-license-file = "LICENSE"
+authors.workspace = true
+categories.workspace = true
+description.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license-file.workspace = true
 name = "cmod-macros"
-repository = "https://github.com/rise0chen/cmod.git"
-version = "0.2.1"
+readme.workspace = true
+repository.workspace = true
+version.workspace = true
 
 [lib]
 proc-macro = true
 
 [features]
-ffi_lua = []
-ffi_py = []
-ffi_py_asyncio = ["ffi_py"]
-ffi_wasm = []
+ffi_lua = ["cmod-core/ffi_lua"]
+ffi_py = ["cmod-core/ffi_py"]
+ffi_py_asyncio = ["ffi_py", "cmod-core/ffi_py_asyncio"]
+ffi_wasm = ["cmod-core/ffi_wasm"]
 
 [dependencies]
 cfg-if = "1"
+cmod-core = {workspace = true}
 proc-macro2 = "1"
 quote = "1"
-syn = {version = "1", features = ["full", "extra-traits", "parsing"]}
+syn = {version = "2", features = ["full", "extra-traits", "parsing"]}

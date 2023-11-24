@@ -2,32 +2,32 @@ use super::utils::*;
 use proc_macro::TokenStream;
 use quote::quote;
 use std::mem;
-use syn::{parse_macro_input, parse_quote, Ident, ImplItem, ImplItemMethod, ItemImpl};
+use syn::{parse_macro_input, parse_quote, Ident, ImplItem, ImplItemFn, ItemImpl};
 
 pub fn cmod_methods(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut input = parse_macro_input!(input as ItemImpl);
     let mut wasm_input = input.clone();
 
     input.attrs.clear();
-    input.items.iter_mut().for_each(|ii| match ii {
-        ImplItem::Method(md) => {
+    input.items.iter_mut().for_each(|ii| {
+        if let ImplItem::Fn(md) = ii {
             md.attrs.clear();
         }
-        _ => (),
     });
 
     let mut item_record: Vec<ImplItem> = Vec::new();
-    wasm_input.items.iter().for_each(|ii| match ii {
-        ImplItem::Method(md) => match inner_method_handle(md) {
-            Flag::Static => {
-                item_record.push(ImplItem::from(method_static(md.clone())));
+    wasm_input.items.iter().for_each(|ii| {
+        if let ImplItem::Fn(md) = ii {
+            match inner_method_handle(md) {
+                Flag::Static => {
+                    item_record.push(ImplItem::from(method_static(md.clone())));
+                }
+                Flag::Class => {
+                    item_record.push(ImplItem::from(method_class(md.clone())));
+                }
+                _ => (),
             }
-            Flag::Class => {
-                item_record.push(ImplItem::from(method_class(md.clone())));
-            }
-            _ => (),
-        },
-        _ => (),
+        }
     });
     {
         let item = &mut wasm_input.items;
@@ -48,18 +48,18 @@ enum Flag {
     Class,
 }
 
-fn inner_method_handle(inner_method: &ImplItemMethod) -> Flag {
+fn inner_method_handle(inner_method: &ImplItemFn) -> Flag {
     for p in inner_method.attrs.iter() {
-        if p.path.is_ident("staticmethod") {
+        if p.meta.path().is_ident("staticmethod") {
             return Flag::Static;
-        } else if p.path.is_ident("classmethod") {
+        } else if p.meta.path().is_ident("classmethod") {
             return Flag::Class;
         }
     }
-    return Flag::Empty;
+    Flag::Empty
 }
 
-pub fn method_static(input: ImplItemMethod) -> ImplItemMethod {
+pub fn method_static(input: ImplItemFn) -> ImplItemFn {
     let wasm_input = input.clone();
     let function = Function::parse_impl_fn(wasm_input);
     let Function {
@@ -88,6 +88,7 @@ pub fn method_static(input: ImplItemMethod) -> ImplItemMethod {
             )
         }
     } else {
+        // not async
         if name == "new" {
             parse_quote!(
                 #[wasm_bindgen(js_name = #name, constructor)]
@@ -106,7 +107,7 @@ pub fn method_static(input: ImplItemMethod) -> ImplItemMethod {
     }
 }
 
-pub fn method_class(input: ImplItemMethod) -> ImplItemMethod {
+pub fn method_class(input: ImplItemFn) -> ImplItemFn {
     let wasm_input = input.clone();
     let function = Function::parse_impl_fn(wasm_input);
     let Function {
