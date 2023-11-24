@@ -22,7 +22,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
     if let Some((_b, it)) = item {
         it.into_iter().for_each(|i| match i {
             Item::Fn(ifn) => {
-                if ifn.attrs.iter().any(|a| a.path.segments.last().unwrap().ident == "function") {
+                if ifn.attrs.iter().any(|a| a.meta.path().segments.last().unwrap().ident == "function") {
                     let name = Ident::rename(ifn.sig.ident.clone());
                     let semi = parse_quote!(
                         m.add_function(pyo3::wrap_pyfunction!(#name,m)?)?;
@@ -31,7 +31,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
                 }
             }
             Item::Mod(imd) => {
-                if imd.attrs.iter().any(|a| a.path.segments.last().unwrap().ident == "module") {
+                if imd.attrs.iter().any(|a| a.meta.path().segments.last().unwrap().ident == "module") {
                     let name = imd.ident.clone();
                     let after_name = Ident::rename_module(imd.ident.clone());
                     let semi = parse_quote!(
@@ -41,7 +41,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
                 }
             }
             Item::Struct(ist) => {
-                if ist.attrs.iter().any(|a| a.path.segments.last().unwrap().ident == "class") {
+                if ist.attrs.iter().any(|a| a.meta.path().segments.last().unwrap().ident == "class") {
                     let name = ist.ident.clone();
                     let semi = parse_quote!(
                         m.add_class::<#name>()?;

@@ -11,12 +11,13 @@ pub fn cmod_module(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let item = input.content.clone();
     let mut ident_record = Vec::new();
     if let Some((_b, it)) = item {
-        it.into_iter().for_each(|i| 
-          if let  Item::Fn(ifn) =i {
+        it.into_iter().for_each(|i| {
+            if let Item::Fn(ifn) = i {
                 if ifn.attrs.iter().any(|attr| attr.meta.path().segments.last().unwrap().ident == "function") {
                     ident_record.push(ifn.sig.ident.clone());
                 }
-            });
+            }
+        });
     }
     let mut add_func = ident_record
         .into_iter()
@@ -26,7 +27,7 @@ pub fn cmod_module(_attr: TokenStream, input: TokenStream) -> TokenStream {
             let semi: Stmt = parse_quote!(
                 m.set(#ident_str,lua.create_function(#name)?)?;
             );
-             semi
+            semi
         })
         .collect::<Vec<Stmt>>();
     add_func.push(parse_quote!(

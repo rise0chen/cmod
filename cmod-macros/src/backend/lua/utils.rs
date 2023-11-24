@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use std::collections::HashSet as Set;
-use syn::{parse_quote, punctuated::Punctuated, token::Comma, Expr, FnArg, Ident, ImplItemFn, ItemFn, Meta, Pat, PatPath, ReturnType, Type};
+use syn::{parse_quote, punctuated::Punctuated, token::Comma, Expr, FnArg, Ident, ImplItemFn, ItemFn, Meta, Pat, ReturnType, Type};
 pub trait Utils {
     fn rename(before: Ident) -> Ident;
     fn rename_module(before: Ident) -> Ident;
@@ -58,9 +58,9 @@ impl Function {
         let mut input_type: Punctuated<Type, Comma> = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i| {
             if let FnArg::Typed(t) = i {
-                let pt = *t.pat.clone();
-                input_pat.push(pt.clone());
-                if set.1.contains(&pt) {
+                input_pat.push(t.pat.clone());
+                let pt = if let Pat::Ident(pt) = &*t.pat { &pt.ident } else { return };
+                if set.1.contains(pt) {
                     let ty = *t.ty.clone();
                     if let Type::Path(tp) = &ty {
                         let ps = tp.path.segments.last().unwrap();
@@ -121,9 +121,9 @@ impl Function {
         let mut input_type: Punctuated<Type, Comma> = Punctuated::new();
         input.sig.inputs.iter_mut().for_each(|i| {
             if let FnArg::Typed(t) = i {
-                let pt = *t.pat.clone();
-                input_pat.push(pt.clone());
-                if set.1.contains(&pt) {
+                input_pat.push(t.pat.clone());
+                let pt = if let Pat::Ident(pt) = &*t.pat { &pt.ident } else { return };
+                if set.1.contains(pt) {
                     let ty = *t.ty.clone();
                     if let Type::Path(tp) = &ty {
                         let ps = tp.path.segments.last().unwrap();
@@ -153,15 +153,15 @@ impl Function {
         }
     }
 
-    fn args_detect(input: Punctuated<Meta, Comma>, outset: &mut (bool, Set<Pat>)) -> TokenStream {
+    fn args_detect(input: Punctuated<Meta, Comma>, outset: &mut (bool, Set<Ident>)) -> TokenStream {
         input.iter().for_each(|e| {
             if e.path().segments.last().unwrap().ident == "ret" {
                 outset.0 = true;
             }
             if e.path().segments.last().unwrap().ident == "args" {
-                let args: Punctuated<PatPath, Comma> = e.require_list().unwrap().parse_args_with(Punctuated::parse_terminated).unwrap();
+                let args: Punctuated<Ident, Comma> = e.require_list().unwrap().parse_args_with(Punctuated::parse_terminated).unwrap();
                 args.into_iter().for_each(|p| {
-                    outset.1.insert(p.into());
+                    outset.1.insert(p);
                 });
             }
         });

@@ -9,21 +9,24 @@ pub fn cmod_methods(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let class_type = lua_input.self_ty;
 
     input.attrs.clear();
-    input.items.iter_mut().for_each(|ii| 
-       if let ImplItem::Fn(md) =ii {
+    input.items.iter_mut().for_each(|ii| {
+        if let ImplItem::Fn(md) = ii {
             md.attrs.clear();
-        });
+        }
+    });
 
     let mut item_record: Vec<Stmt> = Vec::new();
-    lua_input.items.iter().for_each(|ii|
-      if let  ImplItem::Fn(md) =ii{ match inner_method_handle(md) {
-            Flag::Static => {
-                item_record.push(method_static(md.clone()));
+    lua_input.items.iter().for_each(|ii| {
+        if let ImplItem::Fn(md) = ii {
+            match inner_method_handle(md) {
+                Flag::Static => {
+                    item_record.push(method_static(md.clone()));
+                }
+                Flag::Class => {
+                    item_record.push(method_class(md.clone()));
+                }
+                _ => (),
             }
-            Flag::Class => {
-                item_record.push(method_class(md.clone()));
-            }
-            _ => (),
         }
     });
     let mut ifn: ImplItemFn = parse_quote!(
@@ -53,7 +56,7 @@ fn inner_method_handle(inner_method: &ImplItemFn) -> Flag {
             return Flag::Class;
         }
     }
-     Flag::Empty
+    Flag::Empty
 }
 
 pub fn method_static(input: ImplItemFn) -> Stmt {

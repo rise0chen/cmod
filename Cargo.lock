@@ -218,7 +218,6 @@ version = "0.0.1"
 dependencies = [
  "cmod",
  "mlua",
- "pyo3",
  "serde",
  "wasm-bindgen",
  "wasm-bindgen-futures",
