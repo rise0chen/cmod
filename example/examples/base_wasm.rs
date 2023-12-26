@@ -1,8 +1,10 @@
-use wasm_bindgen::prelude::*;
+#![allow(unused_parens)]
+#![allow(unused_variables)]
+
 pub mod hello {
     use crate::A;
     use cmod::Result;
-    use wasm_bindgen::prelude;
+    use wasm_bindgen::prelude::*;
 
     #[wasm_bindgen(js_name = hello_world)]
     pub fn hello_world() -> Result<cmod::ffi::wasm::ToFfi<A>> {
