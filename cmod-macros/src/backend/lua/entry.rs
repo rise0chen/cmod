@@ -10,7 +10,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let after_name = Ident::rename_module(name.clone());
     let mut ifn: ItemFn = parse_quote!(
         #[mlua::lua_module(name = #name_str, skip_memory_check)]
-        fn #after_name(lua:&mlua::Lua) -> mlua::Result<mlua::Table>{
+        pub fn #after_name(lua:&mlua::Lua) -> mlua::Result<mlua::Table>{
             let m = lua.create_table()?;
         }
     );
