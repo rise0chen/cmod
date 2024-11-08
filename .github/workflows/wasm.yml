@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         target: [web, nodejs, bundler]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
