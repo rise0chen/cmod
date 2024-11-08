@@ -8,8 +8,8 @@ impl<T> FromFfi<T> {
         self.0
     }
 }
-impl<'lua, T: DeserializeOwned> FromLua<'lua> for FromFfi<T> {
-    fn from_lua(lua_value: LuaValue<'lua>, lua: &'lua Lua) -> LuaResult<Self> {
+impl<T: DeserializeOwned> FromLua for FromFfi<T> {
+    fn from_lua(lua_value: LuaValue, lua: &Lua) -> LuaResult<Self> {
         let options = LuaDeserializeOptions::new().deny_unsupported_types(false);
         lua.from_value_with(lua_value, options).map(|x| Self(x))
     }
@@ -22,8 +22,8 @@ impl<T> From<T> for ToFfi<T> {
         Self(t)
     }
 }
-impl<'lua, T: Serialize> IntoLua<'lua> for ToFfi<T> {
-    fn into_lua(self, lua: &'lua Lua) -> LuaResult<LuaValue<'lua>> {
+impl<T: Serialize> IntoLua for ToFfi<T> {
+    fn into_lua(self, lua: &Lua) -> LuaResult<LuaValue> {
         let options = LuaSerializeOptions::new().serialize_none_to_null(false).serialize_unit_to_null(false);
         lua.to_value_with(&self.0, options)
     }

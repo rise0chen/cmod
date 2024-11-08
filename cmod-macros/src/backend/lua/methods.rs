@@ -30,7 +30,7 @@ pub fn cmod_methods(_attr: TokenStream, input: TokenStream) -> TokenStream {
         }
     });
     let mut ifn: ImplItemFn = parse_quote!(
-        fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {}
+        fn add_methods<M: mlua::UserDataMethods<Self>>(methods: &mut M) {}
     );
     ifn.block.stmts = item_record;
     TokenStream::from(quote!(

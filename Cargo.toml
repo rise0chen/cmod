@@ -16,7 +16,7 @@ keywords = ["kvdb"]
 license-file = "LICENSE"
 readme = "./README.md"
 repository = "https://github.com/rise0chen/cmod.git"
-version = "0.3.7"
+version = "0.4.0"
 
 [workspace.dependencies]
 cmod = {version = "0", path = "./cmod", default-features = false}

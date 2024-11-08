@@ -18,7 +18,7 @@ ffi_py_asyncio = ["ffi_py"]
 ffi_wasm = ["wasm-bindgen", "serde-wasm-bindgen"]
 
 [dependencies]
-mlua = {version = "0.9", features = ["send", "async", "serialize"], optional = true}
+mlua = {version = "0.10", features = ["async", "serialize"], optional = true}
 pyo3 = {version = "0.20", features = ["serde", "extension-module"], optional = true}
 pyo3-asyncio = {version = "0.20", features = ["tokio-runtime"], optional = true}
 pythonize = {version = "0.20", optional = true}

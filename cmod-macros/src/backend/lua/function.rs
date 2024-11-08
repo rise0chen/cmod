@@ -20,7 +20,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
         TokenStream::from(quote!(
             #input
 
-            async fn #after_name<'lua>(lua: &'lua mlua::Lua, #inp)#ret{
+            async fn #after_name(lua: mlua::Lua, #inp)#ret{
                 #name(#args).await.map_err(cmod::ffi::lua::map_err)#map_ret
             }
         ))
@@ -28,7 +28,7 @@ pub fn cmod_function(_attr: TokenStream, input: TokenStream) -> TokenStream {
         TokenStream::from(quote!(
             #input
 
-            fn #after_name<'lua>(lua: &'lua mlua::Lua, #inp)#ret{
+            fn #after_name(lua: &mlua::Lua, #inp)#ret{
                 #name(#args).map_err(cmod::ffi::lua::map_err)#map_ret
             }
         ))
