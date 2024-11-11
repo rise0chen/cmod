@@ -67,14 +67,17 @@ mod hello {
         }
     }
 
-    #[mlua::lua_module(name = "hello")]
-    fn lua_module_hello(lua: &mlua::Lua) -> mlua::Result<mlua::Table> {
+    fn lua_table_hello(lua: &mlua::Lua) -> mlua::Result<mlua::Table> {
         let m = lua.create_table()?;
         m.set("hello_world", lua.create_function(lua_hello_world)?)?;
         m.set("hello_human", lua.create_async_function(lua_hello_human)?)?;
         say::lua_module_say(lua, &m)?;
         m.set("Human", lua.create_proxy::<Human>()?)?;
         Ok(m)
+    }
+    #[mlua::lua_module(name = "hello")]
+    fn lua_module_hello(lua: &mlua::Lua) -> mlua::Result<mlua::Table> {
+        lua_table_hello(lua)
     }
 }
 

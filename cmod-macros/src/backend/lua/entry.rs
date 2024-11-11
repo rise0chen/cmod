@@ -1,5 +1,6 @@
 use super::utils::*;
 use proc_macro::TokenStream;
+use proc_macro2::Span;
 use quote::quote;
 use syn::{parse_macro_input, parse_quote, Ident, Item, ItemFn, ItemMod, Stmt};
 
@@ -7,11 +8,17 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut input = parse_macro_input!(input as ItemMod);
     let name = input.ident.clone();
     let name_str = name.to_string();
-    let after_name = Ident::rename_module(name.clone());
+    let lua_table_name = Ident::new(format!("lua_table_{}", name).as_str(), Span::call_site());
+    let lua_module_name = Ident::rename_module(name.clone());
     let mut ifn: ItemFn = parse_quote!(
-        #[mlua::lua_module(name = #name_str)]
-        pub fn #after_name(lua:&mlua::Lua) -> mlua::Result<mlua::Table>{
+        pub fn #lua_table_name(lua:&mlua::Lua) -> mlua::Result<mlua::Table>{
             let m = lua.create_table()?;
+        }
+    );
+    let ifn_module: ItemFn = parse_quote!(
+        #[mlua::lua_module(name = #name_str)]
+        pub fn #lua_module_name(lua:&mlua::Lua) -> mlua::Result<mlua::Table>{
+            #lua_table_name(lua)
         }
     );
 
@@ -66,6 +73,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
 
     if let Some((_b, ref mut ct)) = input.content {
         ct.push(Item::Fn(ifn));
+        ct.push(Item::Fn(ifn_module));
     }
 
     TokenStream::from(quote!(
