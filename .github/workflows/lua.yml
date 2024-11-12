@@ -65,10 +65,10 @@ jobs:
           submodules: true
       - name: Build
         if: ${{ matrix.platform.os != 'windows-2022' }}
-        run: cargo build --release --no-default-features --features ffi_lua --target ${{matrix.platform.target}}
+        run: cargo build --release --no-default-features --features ffi_lua,module --target ${{matrix.platform.target}}
         working-directory: example
       - name: Build
         if: ${{ matrix.platform.os == 'windows-2022' }}
-        run: cargo build --release --no-default-features --features ffi_lua --target ${{matrix.platform.target}}
+        run: cargo build --release --no-default-features --features ffi_lua,module --target ${{matrix.platform.target}}
         working-directory: example
         shell: msys2 {0}

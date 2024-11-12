@@ -57,5 +57,5 @@ jobs:
         with:
           container: off
           command: build
-          args: --release --no-default-features --features ffi_py_asyncio --target ${{matrix.platform.target}}
+          args: --release --no-default-features --features ffi_py_asyncio,module --target ${{matrix.platform.target}}
           working-directory: example
