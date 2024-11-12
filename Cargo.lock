@@ -77,7 +77,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "cmod"
-version = "0.4.3"
+version = "0.4.4"
 dependencies = [
  "cmod-core",
  "cmod-macros",
@@ -85,7 +85,7 @@ dependencies = [
 
 [[package]]
 name = "cmod-core"
-version = "0.4.3"
+version = "0.4.4"
 dependencies = [
  "mlua",
  "pyo3",
@@ -99,7 +99,7 @@ dependencies = [
 
 [[package]]
 name = "cmod-macros"
-version = "0.4.3"
+version = "0.4.4"
 dependencies = [
  "cfg-if",
  "proc-macro2",
