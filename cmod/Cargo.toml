@@ -16,6 +16,7 @@ ffi_lua = ["cmod-macros/ffi_lua", "cmod-core/ffi_lua"]
 ffi_py = ["cmod-macros/ffi_py", "cmod-core/ffi_py"]
 ffi_py_asyncio = ["cmod-macros/ffi_py_asyncio", "cmod-core/ffi_py_asyncio"]
 ffi_wasm = ["cmod-macros/ffi_wasm", "cmod-core/ffi_wasm"]
+module = ["cmod-macros/module"]
 
 [dependencies]
 cmod-core = {workspace = true}

@@ -18,6 +18,7 @@ ffi_lua = []
 ffi_py = []
 ffi_py_asyncio = ["ffi_py"]
 ffi_wasm = []
+module = []
 
 [dependencies]
 cfg-if = "1"

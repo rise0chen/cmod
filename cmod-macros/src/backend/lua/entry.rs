@@ -15,6 +15,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
             let m = lua.create_table()?;
         }
     );
+    #[cfg(feature="module")]
     let ifn_module: ItemFn = parse_quote!(
         #[mlua::lua_module(name = #name_str)]
         pub fn #lua_module_name(lua:&mlua::Lua) -> mlua::Result<mlua::Table>{
@@ -73,6 +74,7 @@ pub fn cmod(_attr: TokenStream, input: TokenStream) -> TokenStream {
 
     if let Some((_b, ref mut ct)) = input.content {
         ct.push(Item::Fn(ifn));
+        #[cfg(feature="module")]
         ct.push(Item::Fn(ifn_module));
     }
 
